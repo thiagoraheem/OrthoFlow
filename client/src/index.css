@@ -87,6 +87,22 @@
   }
 }
 
+/* Main content spacing adjustments */
+.main-content {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Desktop sidebar spacing */
+@media (min-width: 769px) {
+  .main-content {
+    margin-left: 16rem; /* 64 * 0.25rem = 16rem for expanded sidebar */
+  }
+  
+  .main-content.sidebar-collapsed {
+    margin-left: 4rem; /* 16 * 0.25rem = 4rem for collapsed sidebar */
+  }
+}
+
 /* Mobile responsiveness improvements */
 @media (max-width: 768px) {
   .main-content {

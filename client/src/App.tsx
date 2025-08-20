@@ -14,25 +14,52 @@ import Rooms from "@/pages/rooms";
 import Insurance from "@/pages/insurance";
 import TussPage from "@/pages/tuss";
 import Sidebar from "@/components/layout/sidebar";
+import { createContext, useContext, useState, useEffect } from 'react';
+
+// Context para estado do sidebar
+const SidebarContext = createContext<{
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
+}>({
+  isCollapsed: false,
+  setIsCollapsed: () => {}
+});
+
+export const useSidebarContext = () => useContext(SidebarContext);
 
 function AuthenticatedApp() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
-    <div className="min-h-screen flex bg-medical-bg">
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
-        <Switch>
-          <Route path="/" component={Dashboard} />
-          <Route path="/agenda" component={Dashboard} />
-          <Route path="/appointments" component={Appointments} />
-          <Route path="/patients" component={Patients} />
-          <Route path="/doctors" component={Doctors} />
-          <Route path="/rooms" component={Rooms} />
-          <Route path="/insurance" component={Insurance} />
-          <Route path="/tuss" component={TussPage} />
-          <Route component={NotFound} />
-        </Switch>
-      </main>
-    </div>
+    <SidebarContext.Provider value={{ isCollapsed: sidebarCollapsed, setIsCollapsed: setSidebarCollapsed }}>
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />
+        <main className={`flex-1 main-content ${!isMobile && sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+          <Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/agenda" component={Dashboard} />
+            <Route path="/appointments" component={Appointments} />
+            <Route path="/patients" component={Patients} />
+            <Route path="/doctors" component={Doctors} />
+            <Route path="/rooms" component={Rooms} />
+            <Route path="/insurance" component={Insurance} />
+            <Route path="/tuss" component={TussPage} />
+            <Route component={NotFound} />
+          </Switch>
+        </main>
+      </div>
+    </SidebarContext.Provider>
   );
 }
 

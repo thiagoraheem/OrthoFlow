@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { useSidebarContext } from "@/App";
 
 const getNavigationItems = (userType: string) => {
   const baseItems = [
@@ -53,7 +54,7 @@ const getNavigationItems = (userType: string) => {
 export default function Sidebar() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isCollapsed, setIsCollapsed } = useSidebarContext();
   const [isMobile, setIsMobile] = useState(false);
   
   if (!user) return null;
@@ -67,13 +68,16 @@ export default function Sidebar() {
       setIsMobile(mobile);
       if (mobile) {
         setIsCollapsed(true);
+      } else {
+        // On desktop, start with sidebar expanded
+        setIsCollapsed(false);
       }
     };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [setIsCollapsed]);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -106,21 +110,24 @@ export default function Sidebar() {
         className={cn(
           "bg-white shadow-lg border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300 ease-in-out z-50",
           isMobile ? "fixed left-0 top-0" : "relative",
-          isCollapsed 
-            ? isMobile 
-              ? "-translate-x-full" 
-              : "w-16"
-            : isMobile 
-              ? "w-64 translate-x-0" 
+          isMobile
+            ? isCollapsed 
+              ? "-translate-x-full w-64" 
+              : "w-64 translate-x-0"
+            : isCollapsed 
+              ? "w-16" 
               : "w-64"
         )}
       >
         {/* Logo Header */}
         <div className={cn(
-          "border-b border-gray-200 transition-all duration-300",
+          "border-b border-gray-200 transition-all duration-300 flex items-center justify-center",
           isCollapsed && !isMobile ? "p-3" : "p-6"
         )}>
-          <div className="flex items-center space-x-3">
+          <div className={cn(
+            "flex items-center transition-all duration-300",
+            isCollapsed && !isMobile ? "justify-center" : "space-x-3"
+          )}>
             <div className="w-10 h-10 bg-medical-blue rounded-lg flex items-center justify-center flex-shrink-0">
               <Stethoscope className="text-white text-lg" />
             </div>
@@ -135,13 +142,22 @@ export default function Sidebar() {
 
         {/* Collapse button for desktop */}
         {!isMobile && (
-          <div className="px-4 py-2 border-b border-gray-200">
+          <div className={cn(
+            "border-b border-gray-200 transition-all duration-300",
+            isCollapsed ? "px-2 py-2" : "px-4 py-2"
+          )}>
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleSidebar}
-              className="w-full justify-start"
+              className={cn(
+                "transition-all duration-300",
+                isCollapsed 
+                  ? "w-full justify-center p-2" 
+                  : "w-full justify-start"
+              )}
               data-testid="desktop-sidebar-toggle"
+              title={isCollapsed ? "Expandir menu" : "Recolher menu"}
             >
               <Menu className="h-4 w-4" />
               {!isCollapsed && <span className="ml-2">Recolher</span>}
@@ -151,7 +167,10 @@ export default function Sidebar() {
 
         {/* Navigation Menu */}
         <nav className="flex-1 py-6">
-          <ul className="space-y-2 px-4">
+          <ul className={cn(
+            "space-y-2 transition-all duration-300",
+            isCollapsed && !isMobile ? "px-2" : "px-4"
+          )}>
             {navigationItems.map((item) => {
               const isActive = location === item.href;
               const Icon = item.icon;
@@ -161,23 +180,28 @@ export default function Sidebar() {
                   <Link href={item.href}>
                     <div
                       className={cn(
-                        "flex items-center rounded-lg font-medium transition-colors cursor-pointer",
+                        "flex items-center rounded-lg font-medium transition-all duration-300 cursor-pointer group",
                         isActive
                           ? "text-medical-blue bg-blue-50"
                           : "text-gray-700 hover:bg-gray-50",
                         isCollapsed && !isMobile
-                          ? "px-3 py-3 justify-center"
+                          ? "px-3 py-3 justify-center relative"
                           : "px-4 py-3"
                       )}
                       data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
-                      title={isCollapsed && !isMobile ? item.name : undefined}
                     >
                       <Icon className={cn(
-                        "h-5 w-5 flex-shrink-0",
+                        "h-5 w-5 flex-shrink-0 transition-all duration-300",
                         (!isCollapsed || isMobile) && "mr-3"
                       )} />
                       {(!isCollapsed || isMobile) && (
                         <span className="truncate">{item.name}</span>
+                      )}
+                      {/* Tooltip for collapsed state */}
+                      {isCollapsed && !isMobile && (
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                          {item.name}
+                        </div>
                       )}
                     </div>
                   </Link>
