@@ -68,9 +68,6 @@ export default function Sidebar() {
       setIsMobile(mobile);
       if (mobile) {
         setIsCollapsed(true);
-      } else {
-        // On desktop, start with sidebar expanded
-        setIsCollapsed(false);
       }
     };
 
@@ -108,8 +105,10 @@ export default function Sidebar() {
 
       <aside 
         className={cn(
-          "bg-white shadow-lg border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300 ease-in-out z-50",
-          isMobile ? "fixed left-0 top-0" : "relative",
+          "bg-white shadow-lg border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
+          isMobile 
+            ? "fixed left-0 top-0 z-50" 
+            : "relative z-10",
           isMobile
             ? isCollapsed 
               ? "-translate-x-full w-64" 

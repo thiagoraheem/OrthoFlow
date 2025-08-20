@@ -95,11 +95,12 @@
 /* Desktop sidebar spacing */
 @media (min-width: 769px) {
   .main-content {
-    margin-left: 16rem; /* 64 * 0.25rem = 16rem for expanded sidebar */
+    margin-left: 0;
+    transition: margin-left 0.3s ease-in-out;
   }
   
   .main-content.sidebar-collapsed {
-    margin-left: 4rem; /* 16 * 0.25rem = 4rem for collapsed sidebar */
+    margin-left: 0;
   }
 }
 

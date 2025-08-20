@@ -43,9 +43,9 @@ function AuthenticatedApp() {
 
   return (
     <SidebarContext.Provider value={{ isCollapsed: sidebarCollapsed, setIsCollapsed: setSidebarCollapsed }}>
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex min-h-screen bg-gray-50 relative">
         <Sidebar />
-        <main className={`flex-1 main-content ${!isMobile && sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <main className="flex-1 main-content">
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/agenda" component={Dashboard} />
