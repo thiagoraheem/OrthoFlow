@@ -108,14 +108,14 @@ export default function Sidebar() {
           "bg-white shadow-lg border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
           isMobile 
             ? "fixed left-0 top-0 z-50" 
-            : "relative z-10",
+            : "fixed left-0 top-0 z-10",
           isMobile
             ? isCollapsed 
               ? "-translate-x-full w-64" 
               : "w-64 translate-x-0"
             : isCollapsed 
-              ? "w-16" 
-              : "w-64"
+              ? "w-16 translate-x-0" 
+              : "w-64 translate-x-0"
         )}
       >
         {/* Logo Header */}

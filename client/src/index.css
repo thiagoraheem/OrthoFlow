@@ -87,33 +87,8 @@
   }
 }
 
-/* Main content spacing adjustments */
-.main-content {
-  transition: margin-left 0.3s ease-in-out;
-}
-
-/* Desktop sidebar spacing */
-@media (min-width: 769px) {
-  .main-content {
-    margin-left: 0;
-    transition: margin-left 0.3s ease-in-out;
-  }
-  
-  .main-content.sidebar-collapsed {
-    margin-left: 0;
-  }
-}
-
 /* Mobile responsiveness improvements */
 @media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-    width: 100%;
-    padding-top: 1rem;
-    padding-left: 4rem; /* Space for mobile menu button */
-    padding-right: 1rem;
-  }
-  
   .card {
     margin: 0.5rem;
   }
