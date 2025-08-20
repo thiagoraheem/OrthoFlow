@@ -94,11 +94,11 @@ export default function Sidebar() {
         <Button
           variant="ghost"
           size="sm"
-          className="fixed top-4 left-4 z-50 lg:hidden bg-white shadow-md"
+          className="fixed top-4 left-2 z-50 lg:hidden bg-white shadow-md hover:bg-gray-50"
           onClick={toggleSidebar}
           data-testid="mobile-menu-toggle"
         >
-          {isCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+          {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
         </Button>
       )}
 
