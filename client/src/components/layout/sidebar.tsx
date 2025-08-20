@@ -8,7 +8,8 @@ import {
   BarChart3, 
   Stethoscope,
   User,
-  LogOut
+  LogOut,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,7 +26,8 @@ const getNavigationItems = (userType: string) => {
       { name: "Pacientes", href: "/patients", icon: Users },
       { name: "Médicos", href: "/doctors", icon: UserCheck },
       { name: "Salas", href: "/rooms", icon: DoorOpen },
-      { name: "Convênios", href: "/insurance", icon: Shield }
+      { name: "Convênios", href: "/insurance", icon: Shield },
+      { name: "TUSS", href: "/tuss", icon: FileText }
     );
   }
   

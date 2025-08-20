@@ -12,9 +12,23 @@ import {
   type Appointment,
   type InsertAppointment,
   type AppointmentWithDetails,
-  type PatientWithInsurance
+  type PatientWithInsurance,
+  type TussCode,
+  type InsertTussCode,
+  type ExamRequest,
+  type InsertExamRequest,
+  type ExamRequestWithDetails,
+  doctors,
+  patients,
+  clinicRooms,
+  insurancePlans,
+  appointmentTypes,
+  appointments,
+  tussCodes,
+  examRequests
 } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from './db';
+import { eq } from 'drizzle-orm';
 
 export interface IStorage {
   // Doctors
@@ -59,288 +73,330 @@ export interface IStorage {
   updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment | undefined>;
   deleteAppointment(id: string): Promise<boolean>;
   getAppointmentsByDate(date: string): Promise<AppointmentWithDetails[]>;
+
+  // TUSS Codes
+  getTussCodes(search?: string, tableNumber?: string): Promise<TussCode[]>;
+  getTussCode(id: string): Promise<TussCode | undefined>;
+  searchTussCodes(query: string): Promise<TussCode[]>;
+
+  // Exam Requests
+  getExamRequests(): Promise<ExamRequestWithDetails[]>;
+  getExamRequest(id: string): Promise<ExamRequestWithDetails | undefined>;
+  createExamRequest(request: InsertExamRequest): Promise<ExamRequest>;
+  updateExamRequest(id: string, request: Partial<InsertExamRequest>): Promise<ExamRequest | undefined>;
+  deleteExamRequest(id: string): Promise<boolean>;
+  getExamRequestsByPatient(patientId: string): Promise<ExamRequestWithDetails[]>;
 }
 
-export class MemStorage implements IStorage {
-  private doctors: Map<string, Doctor>;
-  private patients: Map<string, Patient>;
-  private clinicRooms: Map<string, ClinicRoom>;
-  private insurancePlans: Map<string, InsurancePlan>;
-  private appointmentTypes: Map<string, AppointmentType>;
-  private appointments: Map<string, Appointment>;
-
-  constructor() {
-    this.doctors = new Map();
-    this.patients = new Map();
-    this.clinicRooms = new Map();
-    this.insurancePlans = new Map();
-    this.appointmentTypes = new Map();
-    this.appointments = new Map();
-    
-    this.initializeDefaults();
-  }
-
-  private initializeDefaults() {
-    // Initialize default appointment types
-    const consultationType: AppointmentType = {
-      id: randomUUID(),
-      typeName: "Consultation",
-      duration: "30 minutes",
-      description: "Initial patient consultation"
-    };
-    
-    const examinationType: AppointmentType = {
-      id: randomUUID(),
-      typeName: "Examination",
-      duration: "45 minutes",
-      description: "Physical examination and assessment"
-    };
-
-    this.appointmentTypes.set(consultationType.id, consultationType);
-    this.appointmentTypes.set(examinationType.id, examinationType);
-  }
-
-  // Doctors
+export class DatabaseStorage implements IStorage {
   async getDoctors(): Promise<Doctor[]> {
-    return Array.from(this.doctors.values());
+    return await db.select().from(doctors);
   }
 
   async getDoctor(id: string): Promise<Doctor | undefined> {
-    return this.doctors.get(id);
+    const [doctor] = await db.select().from(doctors).where(eq(doctors.id, id));
+    return doctor || undefined;
   }
 
-  async createDoctor(insertDoctor: InsertDoctor): Promise<Doctor> {
-    const id = randomUUID();
-    const doctor: Doctor = { 
-      ...insertDoctor, 
-      id,
-      isActive: insertDoctor.isActive ?? true
-    };
-    this.doctors.set(id, doctor);
-    return doctor;
+  async createDoctor(doctor: InsertDoctor): Promise<Doctor> {
+    const [created] = await db.insert(doctors).values(doctor).returning();
+    return created;
   }
 
-  async updateDoctor(id: string, updates: Partial<InsertDoctor>): Promise<Doctor | undefined> {
-    const doctor = this.doctors.get(id);
-    if (!doctor) return undefined;
-    
-    const updatedDoctor = { ...doctor, ...updates };
-    this.doctors.set(id, updatedDoctor);
-    return updatedDoctor;
+  async updateDoctor(id: string, doctor: Partial<InsertDoctor>): Promise<Doctor | undefined> {
+    const [updated] = await db.update(doctors).set(doctor).where(eq(doctors.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteDoctor(id: string): Promise<boolean> {
-    return this.doctors.delete(id);
+    const result = await db.delete(doctors).where(eq(doctors.id, id));
+    return result.rowCount > 0;
   }
 
-  // Patients
   async getPatients(): Promise<PatientWithInsurance[]> {
-    const patients = Array.from(this.patients.values());
-    return patients.map(patient => ({
-      ...patient,
-      insurancePlan: patient.insurancePlanId ? this.insurancePlans.get(patient.insurancePlanId) : undefined
+    const result = await db
+      .select()
+      .from(patients)
+      .leftJoin(insurancePlans, eq(patients.insurancePlanId, insurancePlans.id));
+
+    return result.map(row => ({
+      ...row.patients,
+      insurancePlan: row.insurance_plans || undefined,
     }));
   }
 
   async getPatient(id: string): Promise<PatientWithInsurance | undefined> {
-    const patient = this.patients.get(id);
-    if (!patient) return undefined;
-    
+    const result = await db
+      .select()
+      .from(patients)
+      .leftJoin(insurancePlans, eq(patients.insurancePlanId, insurancePlans.id))
+      .where(eq(patients.id, id));
+
+    const [row] = result;
+    if (!row) return undefined;
+
     return {
-      ...patient,
-      insurancePlan: patient.insurancePlanId ? this.insurancePlans.get(patient.insurancePlanId) : undefined
+      ...row.patients,
+      insurancePlan: row.insurance_plans || undefined,
     };
   }
 
-  async createPatient(insertPatient: InsertPatient): Promise<Patient> {
-    const id = randomUUID();
-    const patient: Patient = { 
-      ...insertPatient, 
-      id,
-      email: insertPatient.email ?? null,
-      medicalHistory: insertPatient.medicalHistory ?? null,
-      insurancePlanId: insertPatient.insurancePlanId ?? null,
-      insuranceNumber: insertPatient.insuranceNumber ?? null
-    };
-    this.patients.set(id, patient);
-    return patient;
+  async createPatient(patient: InsertPatient): Promise<Patient> {
+    const [created] = await db.insert(patients).values(patient).returning();
+    return created;
   }
 
-  async updatePatient(id: string, updates: Partial<InsertPatient>): Promise<Patient | undefined> {
-    const patient = this.patients.get(id);
-    if (!patient) return undefined;
-    
-    const updatedPatient = { ...patient, ...updates };
-    this.patients.set(id, updatedPatient);
-    return updatedPatient;
+  async updatePatient(id: string, patient: Partial<InsertPatient>): Promise<Patient | undefined> {
+    const [updated] = await db.update(patients).set(patient).where(eq(patients.id, id)).returning();
+    return updated || undefined;
   }
 
   async deletePatient(id: string): Promise<boolean> {
-    return this.patients.delete(id);
+    const result = await db.delete(patients).where(eq(patients.id, id));
+    return result.rowCount > 0;
   }
 
-  // Clinic Rooms
   async getClinicRooms(): Promise<ClinicRoom[]> {
-    return Array.from(this.clinicRooms.values());
+    return await db.select().from(clinicRooms);
   }
 
   async getClinicRoom(id: string): Promise<ClinicRoom | undefined> {
-    return this.clinicRooms.get(id);
+    const [room] = await db.select().from(clinicRooms).where(eq(clinicRooms.id, id));
+    return room || undefined;
   }
 
-  async createClinicRoom(insertRoom: InsertClinicRoom): Promise<ClinicRoom> {
-    const id = randomUUID();
-    const room: ClinicRoom = { 
-      ...insertRoom, 
-      id,
-      equipment: insertRoom.equipment ?? null,
-      isAvailable: insertRoom.isAvailable ?? true
-    };
-    this.clinicRooms.set(id, room);
-    return room;
+  async createClinicRoom(room: InsertClinicRoom): Promise<ClinicRoom> {
+    const [created] = await db.insert(clinicRooms).values(room).returning();
+    return created;
   }
 
-  async updateClinicRoom(id: string, updates: Partial<InsertClinicRoom>): Promise<ClinicRoom | undefined> {
-    const room = this.clinicRooms.get(id);
-    if (!room) return undefined;
-    
-    const updatedRoom = { ...room, ...updates };
-    this.clinicRooms.set(id, updatedRoom);
-    return updatedRoom;
+  async updateClinicRoom(id: string, room: Partial<InsertClinicRoom>): Promise<ClinicRoom | undefined> {
+    const [updated] = await db.update(clinicRooms).set(room).where(eq(clinicRooms.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteClinicRoom(id: string): Promise<boolean> {
-    return this.clinicRooms.delete(id);
+    const result = await db.delete(clinicRooms).where(eq(clinicRooms.id, id));
+    return result.rowCount > 0;
   }
 
-  // Insurance Plans
   async getInsurancePlans(): Promise<InsurancePlan[]> {
-    return Array.from(this.insurancePlans.values());
+    return await db.select().from(insurancePlans);
   }
 
   async getInsurancePlan(id: string): Promise<InsurancePlan | undefined> {
-    return this.insurancePlans.get(id);
+    const [plan] = await db.select().from(insurancePlans).where(eq(insurancePlans.id, id));
+    return plan || undefined;
   }
 
-  async createInsurancePlan(insertPlan: InsertInsurancePlan): Promise<InsurancePlan> {
-    const id = randomUUID();
-    const plan: InsurancePlan = { 
-      ...insertPlan, 
-      id,
-      copayAmount: insertPlan.copayAmount ?? null,
-      deductibleAmount: insertPlan.deductibleAmount ?? null,
-      isActive: insertPlan.isActive ?? true
-    };
-    this.insurancePlans.set(id, plan);
-    return plan;
+  async createInsurancePlan(plan: InsertInsurancePlan): Promise<InsurancePlan> {
+    const [created] = await db.insert(insurancePlans).values(plan).returning();
+    return created;
   }
 
-  async updateInsurancePlan(id: string, updates: Partial<InsertInsurancePlan>): Promise<InsurancePlan | undefined> {
-    const plan = this.insurancePlans.get(id);
-    if (!plan) return undefined;
-    
-    const updatedPlan = { ...plan, ...updates };
-    this.insurancePlans.set(id, updatedPlan);
-    return updatedPlan;
+  async updateInsurancePlan(id: string, plan: Partial<InsertInsurancePlan>): Promise<InsurancePlan | undefined> {
+    const [updated] = await db.update(insurancePlans).set(plan).where(eq(insurancePlans.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteInsurancePlan(id: string): Promise<boolean> {
-    return this.insurancePlans.delete(id);
+    const result = await db.delete(insurancePlans).where(eq(insurancePlans.id, id));
+    return result.rowCount > 0;
   }
 
-  // Appointment Types
   async getAppointmentTypes(): Promise<AppointmentType[]> {
-    return Array.from(this.appointmentTypes.values());
+    return await db.select().from(appointmentTypes);
   }
 
   async getAppointmentType(id: string): Promise<AppointmentType | undefined> {
-    return this.appointmentTypes.get(id);
+    const [type] = await db.select().from(appointmentTypes).where(eq(appointmentTypes.id, id));
+    return type || undefined;
   }
 
-  async createAppointmentType(insertType: InsertAppointmentType): Promise<AppointmentType> {
-    const id = randomUUID();
-    const type: AppointmentType = { 
-      ...insertType, 
-      id,
-      description: insertType.description ?? null
-    };
-    this.appointmentTypes.set(id, type);
-    return type;
+  async createAppointmentType(type: InsertAppointmentType): Promise<AppointmentType> {
+    const [created] = await db.insert(appointmentTypes).values(type).returning();
+    return created;
   }
 
-  async updateAppointmentType(id: string, updates: Partial<InsertAppointmentType>): Promise<AppointmentType | undefined> {
-    const type = this.appointmentTypes.get(id);
-    if (!type) return undefined;
-    
-    const updatedType = { ...type, ...updates };
-    this.appointmentTypes.set(id, updatedType);
-    return updatedType;
+  async updateAppointmentType(id: string, type: Partial<InsertAppointmentType>): Promise<AppointmentType | undefined> {
+    const [updated] = await db.update(appointmentTypes).set(type).where(eq(appointmentTypes.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteAppointmentType(id: string): Promise<boolean> {
-    return this.appointmentTypes.delete(id);
+    const result = await db.delete(appointmentTypes).where(eq(appointmentTypes.id, id));
+    return result.rowCount > 0;
   }
 
-  // Appointments
   async getAppointments(): Promise<AppointmentWithDetails[]> {
-    const appointments = Array.from(this.appointments.values());
-    return appointments.map(appointment => this.enrichAppointment(appointment));
+    const result = await db
+      .select()
+      .from(appointments)
+      .leftJoin(patients, eq(appointments.patientId, patients.id))
+      .leftJoin(doctors, eq(appointments.doctorId, doctors.id))
+      .leftJoin(clinicRooms, eq(appointments.roomId, clinicRooms.id))
+      .leftJoin(appointmentTypes, eq(appointments.appointmentTypeId, appointmentTypes.id));
+
+    return result.map(row => ({
+      ...row.appointments,
+      patient: row.patients!,
+      doctor: row.doctors!,
+      room: row.clinic_rooms || undefined,
+      appointmentType: row.appointment_types!,
+    }));
   }
 
   async getAppointment(id: string): Promise<AppointmentWithDetails | undefined> {
-    const appointment = this.appointments.get(id);
-    if (!appointment) return undefined;
-    
-    return this.enrichAppointment(appointment);
-  }
+    const result = await db
+      .select()
+      .from(appointments)
+      .leftJoin(patients, eq(appointments.patientId, patients.id))
+      .leftJoin(doctors, eq(appointments.doctorId, doctors.id))
+      .leftJoin(clinicRooms, eq(appointments.roomId, clinicRooms.id))
+      .leftJoin(appointmentTypes, eq(appointments.appointmentTypeId, appointmentTypes.id))
+      .where(eq(appointments.id, id));
 
-  async createAppointment(insertAppointment: InsertAppointment): Promise<Appointment> {
-    const id = randomUUID();
-    const appointment: Appointment = { 
-      ...insertAppointment, 
-      id,
-      status: insertAppointment.status || "scheduled",
-      roomId: insertAppointment.roomId ?? null,
-      reason: insertAppointment.reason ?? null,
-      notes: insertAppointment.notes ?? null
+    const [row] = result;
+    if (!row) return undefined;
+
+    return {
+      ...row.appointments,
+      patient: row.patients!,
+      doctor: row.doctors!,
+      room: row.clinic_rooms || undefined,
+      appointmentType: row.appointment_types!,
     };
-    this.appointments.set(id, appointment);
-    return appointment;
   }
 
-  async updateAppointment(id: string, updates: Partial<InsertAppointment>): Promise<Appointment | undefined> {
-    const appointment = this.appointments.get(id);
-    if (!appointment) return undefined;
-    
-    const updatedAppointment = { ...appointment, ...updates };
-    this.appointments.set(id, updatedAppointment);
-    return updatedAppointment;
+  async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
+    const [created] = await db.insert(appointments).values(appointment).returning();
+    return created;
+  }
+
+  async updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment | undefined> {
+    const [updated] = await db.update(appointments).set(appointment).where(eq(appointments.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteAppointment(id: string): Promise<boolean> {
-    return this.appointments.delete(id);
+    const result = await db.delete(appointments).where(eq(appointments.id, id));
+    return result.rowCount > 0;
   }
 
   async getAppointmentsByDate(date: string): Promise<AppointmentWithDetails[]> {
-    const appointments = Array.from(this.appointments.values())
-      .filter(appointment => appointment.appointmentDate === date);
-    return appointments.map(appointment => this.enrichAppointment(appointment));
+    const result = await db
+      .select()
+      .from(appointments)
+      .leftJoin(patients, eq(appointments.patientId, patients.id))
+      .leftJoin(doctors, eq(appointments.doctorId, doctors.id))
+      .leftJoin(clinicRooms, eq(appointments.roomId, clinicRooms.id))
+      .leftJoin(appointmentTypes, eq(appointments.appointmentTypeId, appointmentTypes.id))
+      .where(eq(appointments.appointmentDate, date));
+
+    return result.map(row => ({
+      ...row.appointments,
+      patient: row.patients!,
+      doctor: row.doctors!,
+      room: row.clinic_rooms || undefined,
+      appointmentType: row.appointment_types!,
+    }));
   }
 
-  private enrichAppointment(appointment: Appointment): AppointmentWithDetails {
-    const patient = this.patients.get(appointment.patientId)!;
-    const doctor = this.doctors.get(appointment.doctorId)!;
-    const room = appointment.roomId ? this.clinicRooms.get(appointment.roomId) : undefined;
-    const appointmentType = this.appointmentTypes.get(appointment.appointmentTypeId)!;
+  // TUSS Codes methods
+  async getTussCodes(search?: string, tableNumber?: string): Promise<TussCode[]> {
+    let query = db.select().from(tussCodes);
+    
+    if (search || tableNumber) {
+      // TODO: Add search and filter logic
+    }
+
+    return await query;
+  }
+
+  async getTussCode(id: string): Promise<TussCode | undefined> {
+    const [code] = await db.select().from(tussCodes).where(eq(tussCodes.id, id));
+    return code || undefined;
+  }
+
+  async searchTussCodes(query: string): Promise<TussCode[]> {
+    // TODO: Implement full text search
+    return await db.select().from(tussCodes).limit(50);
+  }
+
+  // Exam Requests methods
+  async getExamRequests(): Promise<ExamRequestWithDetails[]> {
+    const result = await db
+      .select()
+      .from(examRequests)
+      .leftJoin(patients, eq(examRequests.patientId, patients.id))
+      .leftJoin(doctors, eq(examRequests.doctorId, doctors.id))
+      .leftJoin(appointments, eq(examRequests.appointmentId, appointments.id))
+      .leftJoin(tussCodes, eq(examRequests.tussCodeId, tussCodes.id));
+
+    return result.map(row => ({
+      ...row.exam_requests,
+      patient: row.patients!,
+      doctor: row.doctors!,
+      appointment: row.appointments!,
+      tussCode: row.tuss_codes!,
+    }));
+  }
+
+  async getExamRequest(id: string): Promise<ExamRequestWithDetails | undefined> {
+    const result = await db
+      .select()
+      .from(examRequests)
+      .leftJoin(patients, eq(examRequests.patientId, patients.id))
+      .leftJoin(doctors, eq(examRequests.doctorId, doctors.id))
+      .leftJoin(appointments, eq(examRequests.appointmentId, appointments.id))
+      .leftJoin(tussCodes, eq(examRequests.tussCodeId, tussCodes.id))
+      .where(eq(examRequests.id, id));
+
+    const [row] = result;
+    if (!row) return undefined;
 
     return {
-      ...appointment,
-      patient,
-      doctor,
-      room,
-      appointmentType
+      ...row.exam_requests,
+      patient: row.patients!,
+      doctor: row.doctors!,
+      appointment: row.appointments!,
+      tussCode: row.tuss_codes!,
     };
+  }
+
+  async createExamRequest(request: InsertExamRequest): Promise<ExamRequest> {
+    const [created] = await db.insert(examRequests).values(request).returning();
+    return created;
+  }
+
+  async updateExamRequest(id: string, request: Partial<InsertExamRequest>): Promise<ExamRequest | undefined> {
+    const [updated] = await db.update(examRequests).set(request).where(eq(examRequests.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async deleteExamRequest(id: string): Promise<boolean> {
+    const result = await db.delete(examRequests).where(eq(examRequests.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getExamRequestsByPatient(patientId: string): Promise<ExamRequestWithDetails[]> {
+    const result = await db
+      .select()
+      .from(examRequests)
+      .leftJoin(patients, eq(examRequests.patientId, patients.id))
+      .leftJoin(doctors, eq(examRequests.doctorId, doctors.id))
+      .leftJoin(appointments, eq(examRequests.appointmentId, appointments.id))
+      .leftJoin(tussCodes, eq(examRequests.tussCodeId, tussCodes.id))
+      .where(eq(examRequests.patientId, patientId));
+
+    return result.map(row => ({
+      ...row.exam_requests,
+      patient: row.patients!,
+      doctor: row.doctors!,
+      appointment: row.appointments!,
+      tussCode: row.tuss_codes!,
+    }));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

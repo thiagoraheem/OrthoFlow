@@ -12,6 +12,7 @@ import Patients from "@/pages/patients";
 import Doctors from "@/pages/doctors";
 import Rooms from "@/pages/rooms";
 import Insurance from "@/pages/insurance";
+import TussPage from "@/pages/tuss";
 import Sidebar from "@/components/layout/sidebar";
 
 function AuthenticatedApp() {
@@ -27,6 +28,7 @@ function AuthenticatedApp() {
           <Route path="/doctors" component={Doctors} />
           <Route path="/rooms" component={Rooms} />
           <Route path="/insurance" component={Insurance} />
+          <Route path="/tuss" component={TussPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

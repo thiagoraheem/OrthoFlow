@@ -1,13 +1,15 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { TussImporter } from "./services/tussImporter";
 import { 
   insertDoctorSchema,
   insertPatientSchema,
   insertClinicRoomSchema,
   insertInsurancePlanSchema,
   insertAppointmentTypeSchema,
-  insertAppointmentSchema
+  insertAppointmentSchema,
+  insertExamRequestSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -295,6 +297,143 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete appointment" });
+    }
+  });
+
+  // TUSS Codes
+  app.get("/api/tuss-codes", async (req, res) => {
+    try {
+      const { search, tableNumber } = req.query;
+      const codes = await storage.getTussCodes(
+        search ? String(search) : undefined,
+        tableNumber ? String(tableNumber) : undefined
+      );
+      res.json(codes);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch TUSS codes" });
+    }
+  });
+
+  app.get("/api/tuss-codes/search", async (req, res) => {
+    try {
+      const { q } = req.query;
+      if (!q) {
+        return res.status(400).json({ message: "Query parameter 'q' is required" });
+      }
+      const codes = await storage.searchTussCodes(String(q));
+      res.json(codes);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to search TUSS codes" });
+    }
+  });
+
+  app.get("/api/tuss-codes/:id", async (req, res) => {
+    try {
+      const code = await storage.getTussCode(req.params.id);
+      if (!code) {
+        return res.status(404).json({ message: "TUSS code not found" });
+      }
+      res.json(code);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch TUSS code" });
+    }
+  });
+
+  // TUSS Import
+  app.post("/api/tuss-import", async (req, res) => {
+    try {
+      const { importedBy = 'system' } = req.body;
+      const tussImporter = new TussImporter();
+      const result = await tussImporter.downloadAndImportTUSS(importedBy);
+      
+      if (result.success) {
+        res.json({
+          message: result.message,
+          recordsImported: result.recordsImported
+        });
+      } else {
+        res.status(500).json({ message: result.message });
+      }
+    } catch (error) {
+      console.error('TUSS import error:', error);
+      res.status(500).json({ message: 'Erro interno na importação' });
+    }
+  });
+
+  app.get("/api/tuss-statistics", async (req, res) => {
+    try {
+      const tussImporter = new TussImporter();
+      const stats = await tussImporter.getTussStatistics();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch TUSS statistics" });
+    }
+  });
+
+  // Exam Requests
+  app.get("/api/exam-requests", async (req, res) => {
+    try {
+      const requests = await storage.getExamRequests();
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch exam requests" });
+    }
+  });
+
+  app.get("/api/exam-requests/:id", async (req, res) => {
+    try {
+      const request = await storage.getExamRequest(req.params.id);
+      if (!request) {
+        return res.status(404).json({ message: "Exam request not found" });
+      }
+      res.json(request);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch exam request" });
+    }
+  });
+
+  app.get("/api/patients/:patientId/exam-requests", async (req, res) => {
+    try {
+      const requests = await storage.getExamRequestsByPatient(req.params.patientId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch patient exam requests" });
+    }
+  });
+
+  app.post("/api/exam-requests", async (req, res) => {
+    try {
+      const validatedData = insertExamRequestSchema.parse(req.body);
+      const request = await storage.createExamRequest(validatedData);
+      res.status(201).json(request);
+    } catch (error) {
+      console.error('Exam request creation error:', error);
+      res.status(400).json({ message: "Invalid exam request data" });
+    }
+  });
+
+  app.put("/api/exam-requests/:id", async (req, res) => {
+    try {
+      const validatedData = insertExamRequestSchema.partial().parse(req.body);
+      const request = await storage.updateExamRequest(req.params.id, validatedData);
+      if (!request) {
+        return res.status(404).json({ message: "Exam request not found" });
+      }
+      res.json(request);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid exam request data" });
+    }
+  });
+
+  app.delete("/api/exam-requests/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteExamRequest(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Exam request not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete exam request" });
     }
   });
 
