@@ -1,4 +1,5 @@
 import https from 'https';
+import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse';
@@ -17,7 +18,7 @@ interface TussRecord {
 }
 
 export class TussImporter {
-  private readonly TUSS_URL = 'http://ftp.dadosabertos.ans.gov.br/FTP/PDA/terminologia_unificada_saude_suplementar_TUSS/TUSS.zip';
+  private readonly TUSS_URL = 'https://ftp.dadosabertos.ans.gov.br/FTP/PDA/terminologia_unificada_saude_suplementar_TUSS/TUSS.zip';
   private readonly TEMP_DIR = path.join(process.cwd(), 'tmp');
 
   constructor() {
@@ -103,8 +104,10 @@ export class TussImporter {
   private downloadFile(url: string, filePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const file = fs.createWriteStream(filePath);
+      const isHttps = url.startsWith('https://');
+      const httpModule = isHttps ? https : http;
       
-      https.get(url, (response) => {
+      httpModule.get(url, (response) => {
         if (response.statusCode !== 200) {
           reject(new Error(`Erro no download: ${response.statusCode}`));
           return;
