@@ -50,11 +50,11 @@ function AuthenticatedApp() {
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
         <main className={`flex-1 transition-all duration-300 ${
-          isMobile 
-            ? 'ml-0 w-full' 
-            : sidebarCollapsed 
+          !isMobile 
+            ? sidebarCollapsed 
               ? 'ml-16' 
               : 'ml-64'
+            : 'ml-0'
         }`}>
           <div className={`p-6 ${isMobile ? 'pt-16' : ''}`}>
             <Switch>
