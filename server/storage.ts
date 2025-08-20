@@ -111,7 +111,11 @@ export class MemStorage implements IStorage {
 
   async createDoctor(insertDoctor: InsertDoctor): Promise<Doctor> {
     const id = randomUUID();
-    const doctor: Doctor = { ...insertDoctor, id };
+    const doctor: Doctor = { 
+      ...insertDoctor, 
+      id,
+      isActive: insertDoctor.isActive ?? true
+    };
     this.doctors.set(id, doctor);
     return doctor;
   }
@@ -150,7 +154,14 @@ export class MemStorage implements IStorage {
 
   async createPatient(insertPatient: InsertPatient): Promise<Patient> {
     const id = randomUUID();
-    const patient: Patient = { ...insertPatient, id };
+    const patient: Patient = { 
+      ...insertPatient, 
+      id,
+      email: insertPatient.email ?? null,
+      medicalHistory: insertPatient.medicalHistory ?? null,
+      insurancePlanId: insertPatient.insurancePlanId ?? null,
+      insuranceNumber: insertPatient.insuranceNumber ?? null
+    };
     this.patients.set(id, patient);
     return patient;
   }
@@ -179,7 +190,12 @@ export class MemStorage implements IStorage {
 
   async createClinicRoom(insertRoom: InsertClinicRoom): Promise<ClinicRoom> {
     const id = randomUUID();
-    const room: ClinicRoom = { ...insertRoom, id };
+    const room: ClinicRoom = { 
+      ...insertRoom, 
+      id,
+      equipment: insertRoom.equipment ?? null,
+      isAvailable: insertRoom.isAvailable ?? true
+    };
     this.clinicRooms.set(id, room);
     return room;
   }
@@ -208,7 +224,13 @@ export class MemStorage implements IStorage {
 
   async createInsurancePlan(insertPlan: InsertInsurancePlan): Promise<InsurancePlan> {
     const id = randomUUID();
-    const plan: InsurancePlan = { ...insertPlan, id };
+    const plan: InsurancePlan = { 
+      ...insertPlan, 
+      id,
+      copayAmount: insertPlan.copayAmount ?? null,
+      deductibleAmount: insertPlan.deductibleAmount ?? null,
+      isActive: insertPlan.isActive ?? true
+    };
     this.insurancePlans.set(id, plan);
     return plan;
   }
@@ -237,7 +259,11 @@ export class MemStorage implements IStorage {
 
   async createAppointmentType(insertType: InsertAppointmentType): Promise<AppointmentType> {
     const id = randomUUID();
-    const type: AppointmentType = { ...insertType, id };
+    const type: AppointmentType = { 
+      ...insertType, 
+      id,
+      description: insertType.description ?? null
+    };
     this.appointmentTypes.set(id, type);
     return type;
   }
@@ -270,7 +296,14 @@ export class MemStorage implements IStorage {
 
   async createAppointment(insertAppointment: InsertAppointment): Promise<Appointment> {
     const id = randomUUID();
-    const appointment: Appointment = { ...insertAppointment, id };
+    const appointment: Appointment = { 
+      ...insertAppointment, 
+      id,
+      status: insertAppointment.status || "scheduled",
+      roomId: insertAppointment.roomId ?? null,
+      reason: insertAppointment.reason ?? null,
+      notes: insertAppointment.notes ?? null
+    };
     this.appointments.set(id, appointment);
     return appointment;
   }

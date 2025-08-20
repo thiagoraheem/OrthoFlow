@@ -16,13 +16,16 @@ import {
 } from "@/components/ui/table";
 import AppointmentForm from "@/components/forms/appointment-form";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import type { AppointmentWithDetails } from "@shared/schema";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Appointments() {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
-  const { data: appointments = [], isLoading } = useQuery({
+  const { data: appointments = [], isLoading } = useQuery<AppointmentWithDetails[]>({
     queryKey: ["/api/appointments"],
   });
 
@@ -48,45 +51,57 @@ export default function Appointments() {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed": return "Concluída";
+      case "in-progress": return "Em Andamento";
+      case "scheduled": return "Agendada";
+      case "cancelled": return "Cancelada";
+      default: return "Atrasada";
+    }
+  };
+
   return (
     <div>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <header className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-medical-text">Appointments</h2>
-            <p className="text-gray-500">Manage patient appointments and schedules</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-medical-text">Consultas</h2>
+            <p className="text-gray-500 text-sm sm:text-base">Gerenciar consultas e agendamentos</p>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="bg-medical-blue hover:bg-blue-700" data-testid="button-new-appointment">
-                <Plus className="mr-2 h-4 w-4" />
-                New Appointment
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <AppointmentForm />
-            </DialogContent>
-          </Dialog>
+          {(user?.userType === "Atendente" || user?.userType === "Administrador") && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="bg-medical-blue hover:bg-blue-700" data-testid="button-new-appointment">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nova Consulta
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <AppointmentForm />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </header>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         {/* Filters */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Filter className="mr-2 h-5 w-5" />
-              Filters
+              Filtros
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder="Search by patient or doctor name..."
+                    placeholder="Buscar por paciente ou médico..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -94,7 +109,7 @@ export default function Appointments() {
                   />
                 </div>
               </div>
-              <div className="w-full md:w-48">
+              <div className="w-full lg:w-48">
                 <Input
                   type="date"
                   value={selectedDate}
@@ -109,8 +124,9 @@ export default function Appointments() {
                   setSelectedDate("");
                 }}
                 data-testid="button-clear-filters"
+                className="w-full lg:w-auto"
               >
-                Clear Filters
+                Limpar Filtros
               </Button>
             </div>
           </CardContent>
@@ -121,7 +137,7 @@ export default function Appointments() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Calendar className="mr-2 h-5 w-5" />
-              Appointments ({filteredAppointments.length})
+              Consultas ({filteredAppointments.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -135,95 +151,97 @@ export default function Appointments() {
               <div className="text-center py-8">
                 <Calendar className="mx-auto h-12 w-12 text-gray-400" />
                 <p className="mt-2 text-gray-500">
-                  {searchTerm || selectedDate ? "No appointments found matching your filters" : "No appointments scheduled"}
+                  {searchTerm || selectedDate ? "Nenhuma consulta encontrada" : "Nenhuma consulta agendada"}
                 </p>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date & Time</TableHead>
-                    <TableHead>Patient</TableHead>
-                    <TableHead>Doctor</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Room</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAppointments.map((appointment: AppointmentWithDetails) => (
-                    <TableRow key={appointment.id} data-testid={`appointment-row-${appointment.id}`}>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Clock className="mr-2 h-4 w-4 text-gray-400" />
-                          <div>
-                            <p className="font-medium">{appointment.appointmentDate}</p>
-                            <p className="text-sm text-gray-500">{appointment.appointmentTime}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <User className="mr-2 h-4 w-4 text-gray-400" />
-                          <div>
-                            <p className="font-medium">
-                              {appointment.patient.firstName} {appointment.patient.lastName}
-                            </p>
-                            <p className="text-sm text-gray-500">{appointment.patient.phone}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Stethoscope className="mr-2 h-4 w-4 text-gray-400" />
-                          <div>
-                            <p className="font-medium">
-                              Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}
-                            </p>
-                            <p className="text-sm text-gray-500">{appointment.doctor.specialty}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {appointment.appointmentType.typeName}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {appointment.room ? (
-                          <span>Room {appointment.room.roomNumber}</span>
-                        ) : (
-                          <span className="text-gray-400">Not assigned</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(appointment.status)}>
-                          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            data-testid={`button-edit-${appointment.id}`}
-                          >
-                            Edit
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            data-testid={`button-cancel-${appointment.id}`}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data & Horário</TableHead>
+                      <TableHead>Paciente</TableHead>
+                      <TableHead>Médico</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Sala</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAppointments.map((appointment: AppointmentWithDetails) => (
+                      <TableRow key={appointment.id} data-testid={`appointment-row-${appointment.id}`}>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Clock className="mr-2 h-4 w-4 text-gray-400" />
+                            <div>
+                              <p className="font-medium">{format(new Date(appointment.appointmentDate), "dd/MM/yyyy", { locale: ptBR })}</p>
+                              <p className="text-sm text-gray-500">{appointment.appointmentTime}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <User className="mr-2 h-4 w-4 text-gray-400" />
+                            <div>
+                              <p className="font-medium">
+                                {appointment.patient.firstName} {appointment.patient.lastName}
+                              </p>
+                              <p className="text-sm text-gray-500">{appointment.patient.phone}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Stethoscope className="mr-2 h-4 w-4 text-gray-400" />
+                            <div>
+                              <p className="font-medium">
+                                Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}
+                              </p>
+                              <p className="text-sm text-gray-500">{appointment.doctor.specialty}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {appointment.appointmentType.typeName}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {appointment.room ? (
+                            <span>Sala {appointment.room.roomNumber}</span>
+                          ) : (
+                            <span className="text-gray-400">Não atribuída</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getStatusColor(appointment.status)}>
+                            {getStatusText(appointment.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              data-testid={`button-edit-${appointment.id}`}
+                            >
+                              Editar
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              data-testid={`button-cancel-${appointment.id}`}
+                            >
+                              Cancelar
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>

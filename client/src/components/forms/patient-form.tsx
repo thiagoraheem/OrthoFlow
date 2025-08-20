@@ -28,7 +28,7 @@ export default function PatientForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: insurancePlans = [] } = useQuery({
+  const { data: insurancePlans = [] } = useQuery<any[]>({
     queryKey: ["/api/insurance"],
   });
 
@@ -54,22 +54,22 @@ export default function PatientForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
       toast({
-        title: "Success",
-        description: "Patient registered successfully",
+        title: "Sucesso",
+        description: "Paciente cadastrado com sucesso",
       });
       form.reset();
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to register patient",
+        title: "Erro",
+        description: "Falha ao cadastrar paciente",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: any) => {
-    // Remove empty strings to allow null values
+    // Remover campos vazios para permitir valores null
     const cleanedData = Object.fromEntries(
       Object.entries(data).map(([key, value]) => [key, value === "" ? null : value])
     );
@@ -79,18 +79,18 @@ export default function PatientForm() {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Register New Patient</DialogTitle>
+        <DialogTitle>Cadastrar Novo Paciente</DialogTitle>
       </DialogHeader>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-h-[80vh] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First Name</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input {...field} data-testid="input-first-name" />
                   </FormControl>
@@ -104,7 +104,7 @@ export default function PatientForm() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last Name</FormLabel>
+                  <FormLabel>Sobrenome</FormLabel>
                   <FormControl>
                     <Input {...field} data-testid="input-last-name" />
                   </FormControl>
@@ -120,7 +120,7 @@ export default function PatientForm() {
               name="dateOfBirth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date of Birth</FormLabel>
+                  <FormLabel>Data de Nascimento</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} data-testid="input-dob" />
                   </FormControl>
@@ -134,9 +134,13 @@ export default function PatientForm() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <Input {...field} data-testid="input-phone" />
+                    <Input 
+                      placeholder="(11) 99999-9999"
+                      {...field} 
+                      data-testid="input-phone" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,9 +152,14 @@ export default function PatientForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email (Optional)</FormLabel>
+                  <FormLabel>Email (Opcional)</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} data-testid="input-email" />
+                    <Input 
+                      type="email" 
+                      placeholder="email@exemplo.com"
+                      {...field} 
+                      data-testid="input-email" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -163,9 +172,13 @@ export default function PatientForm() {
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address</FormLabel>
+                <FormLabel>Endereço</FormLabel>
                 <FormControl>
-                  <Textarea {...field} data-testid="textarea-address" />
+                  <Textarea 
+                    placeholder="Endereço completo..."
+                    {...field} 
+                    data-testid="textarea-address" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -178,7 +191,7 @@ export default function PatientForm() {
               name="emergencyContact"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Emergency Contact</FormLabel>
+                  <FormLabel>Contato de Emergência</FormLabel>
                   <FormControl>
                     <Input {...field} data-testid="input-emergency-contact" />
                   </FormControl>
@@ -192,9 +205,13 @@ export default function PatientForm() {
               name="emergencyPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Emergency Phone</FormLabel>
+                  <FormLabel>Telefone de Emergência</FormLabel>
                   <FormControl>
-                    <Input {...field} data-testid="input-emergency-phone" />
+                    <Input 
+                      placeholder="(11) 99999-9999"
+                      {...field} 
+                      data-testid="input-emergency-phone" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -207,10 +224,10 @@ export default function PatientForm() {
             name="medicalHistory"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Medical History (Optional)</FormLabel>
+                <FormLabel>Histórico Médico (Opcional)</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Brief medical history..."
+                    placeholder="Histórico médico relevante..."
                     {...field}
                     data-testid="textarea-medical-history"
                   />
@@ -226,15 +243,16 @@ export default function PatientForm() {
               name="insurancePlanId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Insurance Plan (Optional)</FormLabel>
+                  <FormLabel>Plano de Convênio (Opcional)</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger data-testid="select-insurance">
-                        <SelectValue placeholder="Select Insurance Plan" />
+                        <SelectValue placeholder="Selecionar Convênio" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {insurancePlans.map((plan) => (
+                      <SelectItem value="">Sem convênio</SelectItem>
+                      {insurancePlans.map((plan: any) => (
                         <SelectItem key={plan.id} value={plan.id}>
                           {plan.planName} - {plan.provider}
                         </SelectItem>
@@ -251,7 +269,7 @@ export default function PatientForm() {
               name="insuranceNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Insurance Number (Optional)</FormLabel>
+                  <FormLabel>Número do Convênio (Opcional)</FormLabel>
                   <FormControl>
                     <Input {...field} data-testid="input-insurance-number" />
                   </FormControl>
@@ -261,9 +279,9 @@ export default function PatientForm() {
             />
           </div>
 
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 sticky bottom-0 bg-white">
             <Button type="button" variant="outline">
-              Cancel
+              Cancelar
             </Button>
             <Button 
               type="submit" 
@@ -271,7 +289,7 @@ export default function PatientForm() {
               disabled={createPatientMutation.isPending}
               data-testid="button-register"
             >
-              {createPatientMutation.isPending ? "Registering..." : "Register Patient"}
+              {createPatientMutation.isPending ? "Cadastrando..." : "Cadastrar Paciente"}
             </Button>
           </div>
         </form>

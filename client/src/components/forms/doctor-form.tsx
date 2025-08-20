@@ -24,14 +24,16 @@ import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const specialties = [
-  "Orthopedic Surgery",
-  "Sports Medicine",
-  "Joint Replacement",
-  "Spine Surgery",
-  "Hand Surgery",
-  "Foot and Ankle Surgery",
-  "Pediatric Orthopedics",
-  "Trauma Surgery",
+  "Ortopedia Geral",
+  "Medicina Esportiva",
+  "Artroplastia (Próteses)",
+  "Cirurgia da Coluna",
+  "Cirurgia da Mão",
+  "Cirurgia do Pé e Tornozelo",
+  "Ortopedia Pediátrica",
+  "Cirurgia do Trauma",
+  "Artroscopia",
+  "Oncologia Ortopédica"
 ];
 
 export default function DoctorForm() {
@@ -56,15 +58,15 @@ export default function DoctorForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/doctors"] });
       toast({
-        title: "Success",
-        description: "Doctor added successfully",
+        title: "Sucesso",
+        description: "Médico cadastrado com sucesso",
       });
       form.reset();
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to add doctor",
+        title: "Erro",
+        description: "Falha ao cadastrar médico",
         variant: "destructive",
       });
     },
@@ -77,7 +79,7 @@ export default function DoctorForm() {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Add New Doctor</DialogTitle>
+        <DialogTitle>Cadastrar Novo Médico</DialogTitle>
       </DialogHeader>
 
       <Form {...form}>
@@ -88,7 +90,7 @@ export default function DoctorForm() {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First Name</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input {...field} data-testid="input-first-name" />
                   </FormControl>
@@ -102,7 +104,7 @@ export default function DoctorForm() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last Name</FormLabel>
+                  <FormLabel>Sobrenome</FormLabel>
                   <FormControl>
                     <Input {...field} data-testid="input-last-name" />
                   </FormControl>
@@ -117,11 +119,11 @@ export default function DoctorForm() {
             name="specialty"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Specialty</FormLabel>
+                <FormLabel>Especialidade</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger data-testid="select-specialty">
-                      <SelectValue placeholder="Select Specialty" />
+                      <SelectValue placeholder="Selecionar Especialidade" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -142,9 +144,13 @@ export default function DoctorForm() {
             name="licenseNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>License Number</FormLabel>
+                <FormLabel>Número do CRM</FormLabel>
                 <FormControl>
-                  <Input {...field} data-testid="input-license" />
+                  <Input 
+                    placeholder="Ex: 12345/SP"
+                    {...field} 
+                    data-testid="input-license" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -157,9 +163,13 @@ export default function DoctorForm() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>Telefone</FormLabel>
                   <FormControl>
-                    <Input {...field} data-testid="input-phone" />
+                    <Input 
+                      placeholder="(11) 99999-9999"
+                      {...field} 
+                      data-testid="input-phone" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -173,7 +183,12 @@ export default function DoctorForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} data-testid="input-email" />
+                    <Input 
+                      type="email" 
+                      placeholder="email@exemplo.com"
+                      {...field} 
+                      data-testid="input-email" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -183,7 +198,7 @@ export default function DoctorForm() {
 
           <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline">
-              Cancel
+              Cancelar
             </Button>
             <Button 
               type="submit" 
@@ -191,7 +206,7 @@ export default function DoctorForm() {
               disabled={createDoctorMutation.isPending}
               data-testid="button-add"
             >
-              {createDoctorMutation.isPending ? "Adding..." : "Add Doctor"}
+              {createDoctorMutation.isPending ? "Cadastrando..." : "Cadastrar Médico"}
             </Button>
           </div>
         </form>

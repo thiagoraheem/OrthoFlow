@@ -25,28 +25,28 @@ import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const timeSlots = [
-  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-  "15:00", "15:30", "16:00", "16:30", "17:00"
+  "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", 
+  "16:00", "16:30", "17:00", "17:30", "18:00"
 ];
 
 export default function AppointmentForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: patients = [] } = useQuery({
+  const { data: patients = [] } = useQuery<any[]>({
     queryKey: ["/api/patients"],
   });
 
-  const { data: doctors = [] } = useQuery({
+  const { data: doctors = [] } = useQuery<any[]>({
     queryKey: ["/api/doctors"],
   });
 
-  const { data: rooms = [] } = useQuery({
+  const { data: rooms = [] } = useQuery<any[]>({
     queryKey: ["/api/rooms"],
   });
 
-  const { data: appointmentTypes = [] } = useQuery({
+  const { data: appointmentTypes = [] } = useQuery<any[]>({
     queryKey: ["/api/appointment-types"],
   });
 
@@ -70,28 +70,32 @@ export default function AppointmentForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
       toast({
-        title: "Success",
-        description: "Appointment scheduled successfully",
+        title: "Sucesso",
+        description: "Consulta agendada com sucesso",
       });
       form.reset();
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to schedule appointment",
+        title: "Erro",
+        description: "Falha ao agendar consulta",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: any) => {
+    // Remover roomId se estiver vazio
+    if (!data.roomId) {
+      delete data.roomId;
+    }
     createAppointmentMutation.mutate(data);
   };
 
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Schedule New Appointment</DialogTitle>
+        <DialogTitle>Agendar Nova Consulta</DialogTitle>
       </DialogHeader>
 
       <Form {...form}>
@@ -102,17 +106,17 @@ export default function AppointmentForm() {
               name="patientId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Patient</FormLabel>
+                  <FormLabel>Paciente</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger data-testid="select-patient">
-                        <SelectValue placeholder="Select Patient" />
+                        <SelectValue placeholder="Selecionar Paciente" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {patients.map((patient) => (
+                      {patients.map((patient: any) => (
                         <SelectItem key={patient.id} value={patient.id}>
-                          {patient.firstName} {patient.lastName} - DOB: {patient.dateOfBirth}
+                          {patient.firstName} {patient.lastName} - Nasc: {patient.dateOfBirth}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -127,15 +131,15 @@ export default function AppointmentForm() {
               name="doctorId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Doctor</FormLabel>
+                  <FormLabel>Médico</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger data-testid="select-doctor">
-                        <SelectValue placeholder="Select Doctor" />
+                        <SelectValue placeholder="Selecionar Médico" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {doctors.map((doctor) => (
+                      {doctors.map((doctor: any) => (
                         <SelectItem key={doctor.id} value={doctor.id}>
                           Dr. {doctor.firstName} {doctor.lastName} - {doctor.specialty}
                         </SelectItem>
@@ -154,7 +158,7 @@ export default function AppointmentForm() {
               name="appointmentDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel>Data</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} data-testid="input-date" />
                   </FormControl>
@@ -168,11 +172,11 @@ export default function AppointmentForm() {
               name="appointmentTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Time</FormLabel>
+                  <FormLabel>Horário</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger data-testid="select-time">
-                        <SelectValue placeholder="Select Time" />
+                        <SelectValue placeholder="Selecionar Horário" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -193,15 +197,15 @@ export default function AppointmentForm() {
               name="appointmentTypeId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel>Tipo</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger data-testid="select-type">
-                        <SelectValue placeholder="Select Type" />
+                        <SelectValue placeholder="Selecionar Tipo" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {appointmentTypes.map((type) => (
+                      {appointmentTypes.map((type: any) => (
                         <SelectItem key={type.id} value={type.id}>
                           {type.typeName}
                         </SelectItem>
@@ -219,17 +223,18 @@ export default function AppointmentForm() {
             name="roomId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Room (Optional)</FormLabel>
+                <FormLabel>Sala (Opcional)</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger data-testid="select-room">
-                      <SelectValue placeholder="Select Room" />
+                      <SelectValue placeholder="Selecionar Sala" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {rooms.filter(room => room.isAvailable).map((room) => (
+                    <SelectItem value="">Não atribuir sala</SelectItem>
+                    {rooms.filter((room: any) => room.isAvailable).map((room: any) => (
                       <SelectItem key={room.id} value={room.id}>
-                        Room {room.roomNumber} - {room.roomType}
+                        Sala {room.roomNumber} - {room.roomType}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -244,10 +249,10 @@ export default function AppointmentForm() {
             name="reason"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Reason for Visit</FormLabel>
+                <FormLabel>Motivo da Consulta</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Describe the reason for this appointment..."
+                    placeholder="Descreva o motivo desta consulta..."
                     className="resize-none"
                     {...field}
                     data-testid="textarea-reason"
@@ -260,7 +265,7 @@ export default function AppointmentForm() {
 
           <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline">
-              Cancel
+              Cancelar
             </Button>
             <Button 
               type="submit" 
@@ -268,7 +273,7 @@ export default function AppointmentForm() {
               disabled={createAppointmentMutation.isPending}
               data-testid="button-schedule"
             >
-              {createAppointmentMutation.isPending ? "Scheduling..." : "Schedule Appointment"}
+              {createAppointmentMutation.isPending ? "Agendando..." : "Agendar Consulta"}
             </Button>
           </div>
         </form>

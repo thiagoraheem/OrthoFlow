@@ -16,11 +16,15 @@ import {
 } from "@/components/ui/table";
 import PatientForm from "@/components/forms/patient-form";
 import type { PatientWithInsurance } from "@shared/schema";
+import { useAuth } from "@/contexts/AuthContext";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function Patients() {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: patients = [], isLoading } = useQuery({
+  const { data: patients = [], isLoading } = useQuery<PatientWithInsurance[]>({
     queryKey: ["/api/patients"],
   });
 
@@ -35,34 +39,36 @@ export default function Patients() {
   return (
     <div>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <header className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-medical-text">Patients</h2>
-            <p className="text-gray-500">Manage patient records and information</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-medical-text">Pacientes</h2>
+            <p className="text-gray-500 text-sm sm:text-base">Gerenciar registros e informações de pacientes</p>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="bg-medical-blue hover:bg-blue-700" data-testid="button-new-patient">
-                <Plus className="mr-2 h-4 w-4" />
-                New Patient
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <PatientForm />
-            </DialogContent>
-          </Dialog>
+          {(user?.userType === "Atendente" || user?.userType === "Administrador") && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="bg-medical-blue hover:bg-blue-700" data-testid="button-new-patient">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Novo Paciente
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <PatientForm />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </header>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         {/* Search */}
         <Card>
           <CardContent className="pt-6">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search by name, phone, or email..."
+                placeholder="Buscar por nome, telefone ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -77,7 +83,7 @@ export default function Patients() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Users className="mr-2 h-5 w-5" />
-              Patients ({filteredPatients.length})
+              Pacientes ({filteredPatients.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -91,99 +97,101 @@ export default function Patients() {
               <div className="text-center py-8">
                 <Users className="mx-auto h-12 w-12 text-gray-400" />
                 <p className="mt-2 text-gray-500">
-                  {searchTerm ? "No patients found matching your search" : "No patients registered"}
+                  {searchTerm ? "Nenhum paciente encontrado" : "Nenhum paciente cadastrado"}
                 </p>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Date of Birth</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Insurance</TableHead>
-                    <TableHead>Emergency Contact</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPatients.map((patient: PatientWithInsurance) => (
-                    <TableRow key={patient.id} data-testid={`patient-row-${patient.id}`}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">
-                            {patient.firstName} {patient.lastName}
-                          </p>
-                          <p className="text-sm text-gray-500">ID: {patient.id}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Calendar className="mr-2 h-4 w-4 text-gray-400" />
-                          {patient.dateOfBirth}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm">
-                            <Phone className="mr-2 h-3 w-3 text-gray-400" />
-                            {patient.phone}
-                          </div>
-                          {patient.email && (
-                            <div className="flex items-center text-sm">
-                              <Mail className="mr-2 h-3 w-3 text-gray-400" />
-                              {patient.email}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {patient.insurancePlan ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Data de Nascimento</TableHead>
+                      <TableHead>Contato</TableHead>
+                      <TableHead>Convênio</TableHead>
+                      <TableHead>Emergência</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPatients.map((patient: PatientWithInsurance) => (
+                      <TableRow key={patient.id} data-testid={`patient-row-${patient.id}`}>
+                        <TableCell>
                           <div>
-                            <Badge variant="outline" className="mb-1">
-                              {patient.insurancePlan.planName}
-                            </Badge>
-                            <p className="text-xs text-gray-500">
-                              {patient.insurancePlan.provider}
+                            <p className="font-medium">
+                              {patient.firstName} {patient.lastName}
                             </p>
-                            {patient.insuranceNumber && (
-                              <p className="text-xs text-gray-500">
-                                #{patient.insuranceNumber}
-                              </p>
+                            <p className="text-sm text-gray-500">ID: {patient.id.slice(0, 8)}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Calendar className="mr-2 h-4 w-4 text-gray-400" />
+                            {format(new Date(patient.dateOfBirth), "dd/MM/yyyy", { locale: ptBR })}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center text-sm">
+                              <Phone className="mr-2 h-3 w-3 text-gray-400" />
+                              {patient.phone}
+                            </div>
+                            {patient.email && (
+                              <div className="flex items-center text-sm">
+                                <Mail className="mr-2 h-3 w-3 text-gray-400" />
+                                {patient.email}
+                              </div>
                             )}
                           </div>
-                        ) : (
-                          <span className="text-gray-400">No insurance</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="text-sm font-medium">{patient.emergencyContact}</p>
-                          <p className="text-xs text-gray-500">{patient.emergencyPhone}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            data-testid={`button-edit-${patient.id}`}
-                          >
-                            Edit
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            data-testid={`button-view-${patient.id}`}
-                          >
-                            View
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        </TableCell>
+                        <TableCell>
+                          {patient.insurancePlan ? (
+                            <div>
+                              <Badge variant="outline" className="mb-1">
+                                {patient.insurancePlan.planName}
+                              </Badge>
+                              <p className="text-xs text-gray-500">
+                                {patient.insurancePlan.provider}
+                              </p>
+                              {patient.insuranceNumber && (
+                                <p className="text-xs text-gray-500">
+                                  #{patient.insuranceNumber}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">Sem convênio</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="text-sm font-medium">{patient.emergencyContact}</p>
+                            <p className="text-xs text-gray-500">{patient.emergencyPhone}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              data-testid={`button-edit-${patient.id}`}
+                            >
+                              Editar
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              data-testid={`button-view-${patient.id}`}
+                            >
+                              Visualizar
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>

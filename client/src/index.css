@@ -86,3 +86,134 @@
     font-family: var(--font-sans);
   }
 }
+
+/* Mobile responsiveness improvements */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+    position: fixed;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .card {
+    margin: 0.5rem;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .flex-col-mobile {
+    flex-direction: column;
+  }
+  
+  .text-sm-mobile {
+    font-size: 0.875rem;
+  }
+}
+
+/* Touch-friendly buttons on mobile */
+@media (hover: none) and (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .clickable {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Responsive utilities */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.mobile-hidden {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.mobile-visible {
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+.truncate-mobile {
+  @media (max-width: 768px) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Medical theme utilities */
+.text-medical-blue {
+  color: hsl(var(--medical-blue));
+}
+
+.bg-medical-blue {
+  background-color: hsl(var(--medical-blue));
+}
+
+.text-medical-text {
+  color: hsl(var(--medical-text));
+}
+
+.bg-medical-bg {
+  background-color: hsl(var(--medical-bg));
+}
+
+.text-health-green {
+  color: hsl(var(--health-green));
+}
+
+.bg-health-green {
+  background-color: hsl(var(--health-green));
+}
+
+.text-info-blue {
+  color: hsl(var(--info-blue));
+}
+
+.bg-info-blue {
+  background-color: hsl(var(--info-blue));
+}
+
+.text-warning-yellow {
+  color: hsl(var(--warning-yellow));
+}
+
+.bg-warning-yellow {
+  background-color: hsl(var(--warning-yellow));
+}
