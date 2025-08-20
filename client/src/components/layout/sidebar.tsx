@@ -90,23 +90,25 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Mobile menu button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md hover:bg-gray-50"
-        onClick={toggleSidebar}
-        data-testid="mobile-menu-toggle"
-      >
-        <Menu className="h-4 w-4" />
-      </Button>
+      {/* Mobile menu button - sempre visível em mobile */}
+      {isMobile && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="fixed top-4 left-4 z-50 bg-white shadow-md hover:bg-gray-50 border"
+          onClick={toggleSidebar}
+          data-testid="mobile-menu-toggle"
+        >
+          {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+        </Button>
+      )}
 
       <aside 
         className={cn(
           "bg-white shadow-lg border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
           isMobile 
             ? "fixed left-0 top-0 z-50" 
-            : "relative",
+            : "fixed left-0 top-0 z-10",
           isMobile
             ? isCollapsed 
               ? "-translate-x-full w-64" 
