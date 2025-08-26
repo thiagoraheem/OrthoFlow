@@ -1,21 +1,21 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, decimal, integer } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const doctors = pgTable("doctors", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const doctors = sqliteTable("doctors", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   specialty: text("specialty").notNull(),
   licenseNumber: text("license_number").notNull().unique(),
   phone: text("phone").notNull(),
   email: text("email").notNull().unique(),
-  isActive: boolean("is_active").default(true).notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
 });
 
-export const patients = pgTable("patients", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const patients = sqliteTable("patients", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   dateOfBirth: text("date_of_birth").notNull(),
@@ -25,42 +25,42 @@ export const patients = pgTable("patients", {
   emergencyContact: text("emergency_contact").notNull(),
   emergencyPhone: text("emergency_phone").notNull(),
   medicalHistory: text("medical_history"),
-  insurancePlanId: varchar("insurance_plan_id").references(() => insurancePlans.id),
+  insurancePlanId: text("insurance_plan_id").references(() => insurancePlans.id),
   insuranceNumber: text("insurance_number"),
 });
 
-export const clinicRooms = pgTable("clinic_rooms", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const clinicRooms = sqliteTable("clinic_rooms", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   roomNumber: text("room_number").notNull().unique(),
   roomType: text("room_type").notNull(),
   capacity: text("capacity").notNull(),
   equipment: text("equipment"),
-  isAvailable: boolean("is_available").default(true).notNull(),
+  isAvailable: integer("is_available", { mode: "boolean" }).default(true).notNull(),
 });
 
-export const insurancePlans = pgTable("insurance_plans", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const insurancePlans = sqliteTable("insurance_plans", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   planName: text("plan_name").notNull(),
   provider: text("provider").notNull(),
   coverageType: text("coverage_type").notNull(),
-  copayAmount: decimal("copay_amount", { precision: 8, scale: 2 }),
-  deductibleAmount: decimal("deductible_amount", { precision: 8, scale: 2 }),
-  isActive: boolean("is_active").default(true).notNull(),
+  copayAmount: real("copay_amount"),
+  deductibleAmount: real("deductible_amount"),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
 });
 
-export const appointmentTypes = pgTable("appointment_types", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const appointmentTypes = sqliteTable("appointment_types", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   typeName: text("type_name").notNull().unique(),
   duration: text("duration").notNull(),
   description: text("description"),
 });
 
-export const appointments = pgTable("appointments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  patientId: varchar("patient_id").notNull().references(() => patients.id),
-  doctorId: varchar("doctor_id").notNull().references(() => doctors.id),
-  roomId: varchar("room_id").references(() => clinicRooms.id),
-  appointmentTypeId: varchar("appointment_type_id").notNull().references(() => appointmentTypes.id),
+export const appointments = sqliteTable("appointments", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+  patientId: text("patient_id").notNull().references(() => patients.id),
+  doctorId: text("doctor_id").notNull().references(() => doctors.id),
+  roomId: text("room_id").references(() => clinicRooms.id),
+  appointmentTypeId: text("appointment_type_id").notNull().references(() => appointmentTypes.id),
   appointmentDate: text("appointment_date").notNull(),
   appointmentTime: text("appointment_time").notNull(),
   status: text("status").notNull().default("scheduled"),
@@ -69,60 +69,60 @@ export const appointments = pgTable("appointments", {
 });
 
 // TUSS - Terminologia Unificada da Saúde Suplementar
-export const tussCodes = pgTable("tuss_codes", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const tussCodes = sqliteTable("tuss_codes", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   code: text("code").notNull().unique(), // Código TUSS
   description: text("description").notNull(), // Descrição do procedimento
   tableNumber: text("table_number").notNull(), // Número da tabela (22, 23, 24, etc.)
   tableName: text("table_name").notNull(), // Nome da tabela
   category: text("category"), // Categoria do procedimento
   subcategory: text("subcategory"), // Subcategoria
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  createdAt: text("created_at").default(sql`(datetime('now'))`).notNull(),
+  updatedAt: text("updated_at").default(sql`(datetime('now'))`).notNull(),
 });
 
 // CID - Classificação Internacional de Doenças
-export const cidCodes = pgTable("cid_codes", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const cidCodes = sqliteTable("cid_codes", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   code: text("code").notNull().unique(), // Código CID (ex: A00, B15.0)
   description: text("description").notNull(), // Descrição da doença
   chapter: text("chapter"), // Capítulo do CID
   category: text("category"), // Categoria
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  createdAt: text("created_at").default(sql`(datetime('now'))`).notNull(),
+  updatedAt: text("updated_at").default(sql`(datetime('now'))`).notNull(),
 });
 
 // Solicitações de Exames
-export const examRequests = pgTable("exam_requests", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  appointmentId: varchar("appointment_id").notNull().references(() => appointments.id),
-  patientId: varchar("patient_id").notNull().references(() => patients.id),
-  doctorId: varchar("doctor_id").notNull().references(() => doctors.id),
-  tussCodeId: varchar("tuss_code_id").notNull().references(() => tussCodes.id),
-  cidCodeId: varchar("cid_code_id").references(() => cidCodes.id), // CID relacionado (opcional)
+export const examRequests = sqliteTable("exam_requests", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+  appointmentId: text("appointment_id").notNull().references(() => appointments.id),
+  patientId: text("patient_id").notNull().references(() => patients.id),
+  doctorId: text("doctor_id").notNull().references(() => doctors.id),
+  tussCodeId: text("tuss_code_id").notNull().references(() => tussCodes.id),
+  cidCodeId: text("cid_code_id").references(() => cidCodes.id), // CID relacionado (opcional)
   clinicalIndication: text("clinical_indication").notNull(), // Indicação clínica
   urgency: text("urgency").notNull().default("routine"), // routine, urgent, emergency
   status: text("status").notNull().default("pending"), // pending, approved, rejected, completed
   observations: text("observations"), // Observações adicionais
-  requestedAt: timestamp("requested_at").defaultNow().notNull(),
-  approvedAt: timestamp("approved_at"),
-  completedAt: timestamp("completed_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  requestedAt: text("requested_at").default(sql`(datetime('now'))`).notNull(),
+  approvedAt: text("approved_at"),
+  completedAt: text("completed_at"),
+  createdAt: text("created_at").default(sql`(datetime('now'))`).notNull(),
+  updatedAt: text("updated_at").default(sql`(datetime('now'))`).notNull(),
 });
 
 // Tabela para controle de importação de dados
-export const dataImports = pgTable("data_imports", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+export const dataImports = sqliteTable("data_imports", {
+  id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   type: text("type").notNull(), // 'tuss', 'cid'
   version: text("version"), // Versão dos dados importados
   recordsCount: integer("records_count").notNull(),
   status: text("status").notNull().default("processing"), // processing, completed, failed
   filePath: text("file_path"), // Caminho do arquivo importado
   errorMessage: text("error_message"), // Mensagem de erro se houver
-  importedAt: timestamp("imported_at").defaultNow().notNull(),
+  importedAt: text("imported_at").default(sql`(datetime('now'))`).notNull(),
   importedBy: text("imported_by").notNull(), // Usuário que fez a importação
 });
 
