@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Users, Plus, Search, Phone, Mail, Calendar } from "lucide-react";
+import { Users, Plus, Search, Phone, Mail, Calendar, Eye, Edit } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import PatientForm from "@/components/forms/patient-form";
+import PatientView from "@/components/patient-view";
+import PatientEdit from "@/components/patient-edit";
 import type { PatientWithInsurance } from "@shared/schema";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
@@ -23,6 +25,8 @@ import { ptBR } from "date-fns/locale";
 export default function Patients() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewPatient, setViewPatient] = useState<PatientWithInsurance | null>(null);
+  const [editPatient, setEditPatient] = useState<PatientWithInsurance | null>(null);
 
   const { data: patients = [], isLoading } = useQuery<PatientWithInsurance[]>({
     queryKey: ["/api/patients"],
@@ -179,16 +183,20 @@ export default function Patients() {
                             <Button 
                               size="sm" 
                               variant="outline"
-                              data-testid={`button-edit-${patient.id}`}
+                              onClick={() => setViewPatient(patient)}
+                              data-testid={`button-view-${patient.id}`}
                             >
-                              Editar
+                              <Eye className="h-4 w-4 mr-1" />
+                              Visualizar
                             </Button>
                             <Button 
                               size="sm" 
                               variant="outline"
-                              data-testid={`button-view-${patient.id}`}
+                              onClick={() => setEditPatient(patient)}
+                              data-testid={`button-edit-${patient.id}`}
                             >
-                              Visualizar
+                              <Edit className="h-4 w-4 mr-1" />
+                              Editar
                             </Button>
                           </div>
                         </TableCell>
@@ -201,6 +209,25 @@ export default function Patients() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog para visualizar paciente */}
+      <Dialog open={!!viewPatient} onOpenChange={() => setViewPatient(null)}>
+        <DialogContent className="max-w-4xl">
+          {viewPatient && <PatientView patient={viewPatient} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para editar paciente */}
+      <Dialog open={!!editPatient} onOpenChange={() => setEditPatient(null)}>
+        <DialogContent className="max-w-4xl">
+          {editPatient && (
+            <PatientEdit 
+              patient={editPatient} 
+              onSuccess={() => setEditPatient(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
