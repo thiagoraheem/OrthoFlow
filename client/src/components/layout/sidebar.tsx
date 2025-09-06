@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState, useEffect } from "react";
 import { useSidebarContext } from "@/App";
 
@@ -229,6 +230,15 @@ export default function Sidebar() {
               </div>
             )}
           </div>
+          
+          {/* Theme Toggle */}
+          <div className={cn(
+            "flex transition-all duration-300",
+            isCollapsed && !isMobile ? "justify-center" : "justify-start"
+          )}>
+            <ThemeToggle />
+          </div>
+          
           <Button
             variant="ghost"
             size="sm"

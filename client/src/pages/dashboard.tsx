@@ -48,7 +48,7 @@ export default function Dashboard() {
   });
 
   const { data: rooms = [] } = useQuery<any[]>({
-    queryKey: ["/api/rooms"],
+    queryKey: ["/api/clinic-rooms"],
   });
 
   // Filtrar consultas baseado no tipo de usuário e data
@@ -141,25 +141,35 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             {/* Navigation Controls */}
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigateDate('prev')}
+                className="shadow-sm hover:shadow-md transition-all duration-200 border-border"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setCurrentDate(new Date())}
-                className="text-xs sm:text-sm"
+                className="text-xs sm:text-sm shadow-sm hover:shadow-md transition-all duration-200 border-border font-medium px-4"
               >
                 Hoje
               </Button>
-              <Button variant="outline" size="sm" onClick={() => navigateDate('next')}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigateDate('next')}
+                className="shadow-sm hover:shadow-md transition-all duration-200 border-border"
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
             
             {/* View Mode Selector */}
             <Select value={viewMode} onValueChange={(value: "day" | "week" | "month") => setViewMode(value)}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 shadow-sm hover:shadow-md transition-all duration-200 border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -173,7 +183,11 @@ export default function Dashboard() {
             {(user?.userType === "Atendente" || user?.userType === "Administrador") && (
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="bg-medical-blue hover:bg-blue-700" data-testid="button-new-appointment">
+                  <Button 
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-200 font-medium px-6 py-2 h-10"
+                    size="default"
+                    data-testid="button-new-appointment"
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Nova Consulta
                   </Button>
@@ -191,84 +205,84 @@ export default function Dashboard() {
       <div className="p-4 sm:p-6 space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <Card>
+          <Card className="shadow-sm hover:shadow-md transition-all duration-200 border-border">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 text-sm font-medium">
+                  <p className="text-muted-foreground text-sm font-medium">
                     {viewMode === "day" ? "Consultas Hoje" : 
                      viewMode === "week" ? "Consultas da Semana" : "Consultas do Mês"}
                   </p>
-                  <p className="text-2xl sm:text-3xl font-bold text-medical-text mt-1" data-testid="stat-appointments">
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1" data-testid="stat-appointments">
                     {filteredAppointments.length}
                   </p>
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <CalendarCheck className="text-medical-blue text-lg sm:text-xl" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <CalendarCheck className="text-primary text-lg sm:text-xl" />
                 </div>
               </div>
               <div className="flex items-center mt-4 text-sm">
-                <ArrowUp className="text-health-green mr-1 h-4 w-4" />
-                <span className="text-health-green font-medium">Ativo</span>
+                <ArrowUp className="text-green-600 dark:text-green-400 mr-1 h-4 w-4" />
+                <span className="text-green-600 dark:text-green-400 font-medium">Ativo</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-sm hover:shadow-md transition-all duration-200 border-border">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 text-sm font-medium">Total Pacientes</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-medical-text mt-1" data-testid="stat-patients">
+                  <p className="text-muted-foreground text-sm font-medium">Total Pacientes</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1" data-testid="stat-patients">
                     {patients.length}
                   </p>
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Users className="text-health-green text-lg sm:text-xl" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                  <Users className="text-green-600 dark:text-green-400 text-lg sm:text-xl" />
                 </div>
               </div>
               <div className="flex items-center mt-4 text-sm">
-                <ArrowUp className="text-health-green mr-1 h-4 w-4" />
-                <span className="text-health-green font-medium">Registrados</span>
+                <ArrowUp className="text-green-600 dark:text-green-400 mr-1 h-4 w-4" />
+                <span className="text-green-600 dark:text-green-400 font-medium">Registrados</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-sm hover:shadow-md transition-all duration-200 border-border">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 text-sm font-medium">Médicos Disponíveis</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-medical-text mt-1" data-testid="stat-doctors">
+                  <p className="text-muted-foreground text-sm font-medium">Médicos Disponíveis</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1" data-testid="stat-doctors">
                     {availableDoctors.length}/{doctors.length}
                   </p>
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
-                  <UserCheck className="text-info-blue text-lg sm:text-xl" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-cyan-100 dark:bg-cyan-900/20 rounded-lg flex items-center justify-center">
+                  <UserCheck className="text-cyan-600 dark:text-cyan-400 text-lg sm:text-xl" />
                 </div>
               </div>
               <div className="flex items-center mt-4 text-sm">
-                <Clock className="text-warning-yellow mr-1 h-4 w-4" />
-                <span className="text-warning-yellow font-medium">De plantão</span>
+                <Clock className="text-yellow-600 dark:text-yellow-400 mr-1 h-4 w-4" />
+                <span className="text-yellow-600 dark:text-yellow-400 font-medium">De plantão</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-sm hover:shadow-md transition-all duration-200 border-border">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 text-sm font-medium">Ocupação de Salas</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-medical-text mt-1" data-testid="stat-rooms">
+                  <p className="text-muted-foreground text-sm font-medium">Ocupação de Salas</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1" data-testid="stat-rooms">
                     {roomOccupancy}%
                   </p>
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <DoorOpen className="text-purple-600 text-lg sm:text-xl" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                  <DoorOpen className="text-purple-600 dark:text-purple-400 text-lg sm:text-xl" />
                 </div>
               </div>
               <div className="flex items-center mt-4 text-sm">
-                <span className="text-gray-500">
+                <span className="text-muted-foreground">
                   {rooms.length - availableRooms.length} de {rooms.length} salas ocupadas
                 </span>
               </div>
@@ -338,7 +352,12 @@ export default function Dashboard() {
                                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                     <div className="flex items-center space-x-3">
                                       <span className="text-sm font-medium">
-                                        {format(new Date(appointment.appointmentDate), "dd/MM")}
+                                        {appointment.appointmentDate ? (
+                  (() => {
+                    const date = new Date(appointment.appointmentDate);
+                    return isNaN(date.getTime()) ? '--/--' : format(date, "dd/MM");
+                  })()
+                ) : '--/--'}
                                       </span>
                                       <span className="text-sm font-medium">
                                         {appointment.appointmentTime}
@@ -400,7 +419,12 @@ export default function Dashboard() {
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                             <div className="flex items-center space-x-3">
                               <span className="text-sm font-medium">
-                                {format(new Date(appointment.appointmentDate), "dd/MM")}
+                                {appointment.appointmentDate ? (
+                  (() => {
+                    const date = new Date(appointment.appointmentDate);
+                    return isNaN(date.getTime()) ? '--/--' : format(date, "dd/MM");
+                  })()
+                ) : '--/--'}
                               </span>
                               <span className="text-sm font-medium">
                                 {appointment.appointmentTime}

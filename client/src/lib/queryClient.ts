@@ -23,7 +23,9 @@ export async function apiRequest(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, {
+  const baseUrl = url.startsWith('http') ? url : `http://localhost:8000${url}`;
+  const fullUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const res = await fetch(fullUrl, {
     method,
     headers,
     body: data ? JSON.stringify(data) : undefined,
@@ -40,7 +42,17 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const token = localStorage.getItem("orthocare_token");
+    const headers: Record<string, string> = {};
+    
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const urlPath = queryKey.join("/");
+    const url = `http://localhost:8000${urlPath}${urlPath.endsWith('/') ? '' : '/'}`;
+    const res = await fetch(url, {
+      headers,
       credentials: "include",
     });
 

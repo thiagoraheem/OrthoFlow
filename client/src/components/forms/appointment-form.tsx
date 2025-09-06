@@ -43,7 +43,7 @@ export default function AppointmentForm() {
   });
 
   const { data: rooms = [] } = useQuery<any[]>({
-    queryKey: ["/api/rooms"],
+    queryKey: ["/api/clinic-rooms"],
   });
 
   const { data: appointmentTypes = [] } = useQuery<any[]>({
@@ -55,7 +55,7 @@ export default function AppointmentForm() {
     defaultValues: {
       patientId: "",
       doctorId: "",
-      roomId: "",
+      roomId: "none",
       appointmentTypeId: "",
       appointmentDate: "",
       appointmentTime: "",
@@ -85,8 +85,8 @@ export default function AppointmentForm() {
   });
 
   const onSubmit = (data: any) => {
-    // Remover roomId se estiver vazio
-    if (!data.roomId) {
+    // Remover roomId se estiver vazio ou for "none"
+    if (!data.roomId || data.roomId === "none") {
       delete data.roomId;
     }
     createAppointmentMutation.mutate(data);
@@ -231,7 +231,7 @@ export default function AppointmentForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Não atribuir sala</SelectItem>
+                    <SelectItem value="none">Não atribuir sala</SelectItem>
                     {rooms.filter((room: any) => room.isAvailable).map((room: any) => (
                       <SelectItem key={room.id} value={room.id}>
                         Sala {room.roomNumber} - {room.roomType}

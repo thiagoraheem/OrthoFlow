@@ -22,20 +22,21 @@ export default function Rooms() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: rooms = [], isLoading } = useQuery<ClinicRoom[]>({
-    queryKey: ["/api/rooms"],
+    queryKey: ["/api/clinic-rooms"],
   });
 
   const filteredRooms = rooms.filter((room: ClinicRoom) =>
     searchTerm === "" ||
-    room.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.roomType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    room.room_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    room.room_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (room.equipment && room.equipment.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const availableRooms = filteredRooms.filter(room => room.isAvailable);
-  const occupiedRooms = filteredRooms.filter(room => !room.isAvailable);
+  const availableRooms = filteredRooms.filter(room => room.is_available);
+  const occupiedRooms = filteredRooms.filter(room => !room.is_available);
 
-  const getRoomTypeColor = (type: string) => {
+  const getRoomTypeColor = (type: string | undefined) => {
+    if (!type) return "bg-gray-100 text-gray-800";
     switch (type.toLowerCase()) {
       case "consultório": return "bg-blue-100 text-blue-800";
       case "cirurgia": return "bg-red-100 text-red-800";
@@ -198,13 +199,13 @@ export default function Rooms() {
                           <div className="flex items-center">
                             <DoorOpen className="mr-2 h-4 w-4 text-gray-400" />
                             <span className="font-mono text-lg font-semibold">
-                              {room.roomNumber}
+                              {room.room_number}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getRoomTypeColor(room.roomType)}>
-                            {room.roomType}
+                          <Badge className={getRoomTypeColor(room.room_type)}>
+                            {room.room_type}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -225,8 +226,8 @@ export default function Rooms() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Badge className={room.isAvailable ? "bg-health-green text-white" : "bg-red-500 text-white"}>
-                            {room.isAvailable ? "Disponível" : "Ocupada"}
+                          <Badge className={room.is_available ? "bg-health-green text-white" : "bg-red-500 text-white"}>
+                            {room.is_available ? "Disponível" : "Ocupada"}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
@@ -238,7 +239,7 @@ export default function Rooms() {
                             >
                               Editar
                             </Button>
-                            {room.isAvailable ? (
+                            {room.is_available ? (
                               <Button 
                                 size="sm" 
                                 variant="outline"

@@ -58,9 +58,9 @@ export default function RoomForm() {
   });
 
   const createRoomMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/rooms", data),
+    mutationFn: (data: any) => apiRequest("POST", "/api/clinic-rooms", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/clinic-rooms"] });
       toast({
         title: "Success",
         description: "Room added successfully",

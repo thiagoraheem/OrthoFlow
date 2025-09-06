@@ -61,7 +61,7 @@ async def create_appointment_type(
     
     # Verificar se já existe tipo com o mesmo nome
     existing_type = db.query(AppointmentType).filter(
-        AppointmentType.name == type_data.name
+        AppointmentType.type_name == type_data.type_name
     ).first()
     
     if existing_type:

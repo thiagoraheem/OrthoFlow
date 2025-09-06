@@ -37,6 +37,7 @@ export default function PatientForm() {
     defaultValues: {
       firstName: "",
       lastName: "",
+      cpf: "",
       dateOfBirth: "",
       phone: "",
       email: "",
@@ -44,7 +45,8 @@ export default function PatientForm() {
       emergencyContact: "",
       emergencyPhone: "",
       medicalHistory: "",
-      insurancePlanId: "",
+      allergies: "",
+      insurancePlanId: "none",
       insuranceNumber: "",
     },
   });
@@ -69,10 +71,28 @@ export default function PatientForm() {
   });
 
   const onSubmit = (data: any) => {
-    // Remover campos vazios para permitir valores null
+    // Mapear campos do frontend (camelCase) para backend (snake_case)
+    const mappedData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      cpf: data.cpf || "00000000000", // CPF temporário se não fornecido
+      date_of_birth: data.dateOfBirth,
+      phone: data.phone,
+      email: data.email || null,
+      address: data.address,
+      emergency_contact: data.emergencyContact,
+      emergency_phone: data.emergencyPhone,
+      medical_history: data.medicalHistory || null,
+      allergies: data.allergies || null,
+      insurance_plan_id: data.insurancePlanId === "none" ? null : data.insurancePlanId || null,
+      insurance_number: data.insuranceNumber || null,
+    };
+    
+    // Remover campos vazios
     const cleanedData = Object.fromEntries(
-      Object.entries(data).map(([key, value]) => [key, value === "" ? null : value])
+      Object.entries(mappedData).map(([key, value]) => [key, value === "" ? null : value])
     );
+    
     createPatientMutation.mutate(cleanedData);
   };
 
@@ -114,7 +134,25 @@ export default function PatientForm() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="000.000.000-00"
+                      {...field} 
+                      data-testid="input-cpf" 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="dateOfBirth"
@@ -128,7 +166,9 @@ export default function PatientForm() {
                 </FormItem>
               )}
             />
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="phone"
@@ -219,23 +259,45 @@ export default function PatientForm() {
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="medicalHistory"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Histórico Médico (Opcional)</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Histórico médico relevante..."
-                    {...field}
-                    data-testid="textarea-medical-history"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="medicalHistory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Histórico Médico (Opcional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Descreva o histórico médico do paciente..."
+                      className="min-h-[100px]"
+                      {...field} 
+                      data-testid="textarea-medical-history" 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="allergies"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alergias (Opcional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Descreva as alergias do paciente..."
+                      className="min-h-[100px]"
+                      {...field} 
+                      data-testid="textarea-allergies" 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
@@ -251,7 +313,7 @@ export default function PatientForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Sem convênio</SelectItem>
+                      <SelectItem value="none">Sem convênio</SelectItem>
                       {insurancePlans.map((plan: any) => (
                         <SelectItem key={plan.id} value={plan.id}>
                           {plan.planName} - {plan.provider}

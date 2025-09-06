@@ -73,7 +73,7 @@ async def create_appointment(
     """Criar novo agendamento."""
     
     # Verificar se paciente existe
-    patient = db.query(Patient).filter(Patient.id == appointment_data.patient_id).first()
+    patient = db.query(Patient).filter(Patient.id == str(appointment_data.patient_id)).first()
     if not patient:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -82,7 +82,7 @@ async def create_appointment(
     
     # Verificar se médico existe e está ativo
     doctor = db.query(Doctor).filter(
-        Doctor.id == appointment_data.doctor_id,
+        Doctor.id == str(appointment_data.doctor_id),
         Doctor.is_active == True
     ).first()
     if not doctor:
@@ -94,7 +94,7 @@ async def create_appointment(
     # Verificar se sala existe e está disponível (se fornecida)
     if appointment_data.room_id:
         room = db.query(ClinicRoom).filter(
-            ClinicRoom.id == appointment_data.room_id,
+            ClinicRoom.id == str(appointment_data.room_id),
             ClinicRoom.is_available == True
         ).first()
         if not room:
@@ -105,7 +105,7 @@ async def create_appointment(
     
     # Verificar se tipo de consulta existe
     appointment_type = db.query(AppointmentType).filter(
-        AppointmentType.id == appointment_data.appointment_type_id
+        AppointmentType.id == str(appointment_data.appointment_type_id)
     ).first()
     if not appointment_type:
         raise HTTPException(
@@ -115,7 +115,7 @@ async def create_appointment(
     
     # Verificar conflito de horário para o médico
     existing_appointment = db.query(Appointment).filter(
-        Appointment.doctor_id == appointment_data.doctor_id,
+        Appointment.doctor_id == str(appointment_data.doctor_id),
         Appointment.appointment_date == appointment_data.appointment_date,
         Appointment.appointment_time == appointment_data.appointment_time,
         Appointment.status.in_(["scheduled", "confirmed"])
@@ -130,7 +130,7 @@ async def create_appointment(
     # Verificar conflito de horário para a sala (se fornecida)
     if appointment_data.room_id:
         existing_room_appointment = db.query(Appointment).filter(
-            Appointment.room_id == appointment_data.room_id,
+            Appointment.room_id == str(appointment_data.room_id),
             Appointment.appointment_date == appointment_data.appointment_date,
             Appointment.appointment_time == appointment_data.appointment_time,
             Appointment.status.in_(["scheduled", "confirmed"])

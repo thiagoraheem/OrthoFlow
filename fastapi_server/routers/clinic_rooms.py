@@ -63,15 +63,15 @@ async def create_clinic_room(
 ):
     """Criar nova sala clínica."""
     
-    # Verificar se já existe sala com o mesmo nome
+    # Verificar se já existe sala com o mesmo número
     existing_room = db.query(ClinicRoom).filter(
-        ClinicRoom.name == room_data.name
+        ClinicRoom.room_number == room_data.room_number
     ).first()
     
     if existing_room:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Room with this name already exists"
+            detail="Room with this number already exists"
         )
     
     # Criar sala

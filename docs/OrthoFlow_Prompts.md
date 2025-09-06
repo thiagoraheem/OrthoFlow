@@ -47,8 +47,15 @@ No frontend (React):
 - Tela de cadastro de paciente.
 - Tela de listagem com busca.
 
-[ ] Concluído
+[x] Concluído
 ```
+
+**✅ Implementação realizada:**
+- **Backend**: Modelos Patient e InsurancePlan com relacionamento
+- **Endpoints**: CRUD completo em `/api/patients` e `/api/insurance-plans`
+- **Validações**: CPF e e-mail implementadas
+- **Frontend**: Formulário de cadastro e listagem com busca
+- **Funcionalidades**: Filtros por nome, CPF, convênio e status
 
 ---
 
@@ -150,8 +157,15 @@ Implemente o módulo de Agenda:
 - Endpoints: criar, listar por profissional/data, remarcar, cancelar.
 - No frontend: tela de calendário semanal com agendamentos por profissional.
 
-[ ] Concluído
+[x] Concluído
 ```
+
+**✅ Implementação realizada:**
+- **Backend**: Modelos Doctor, Appointment, AppointmentType e ClinicRoom
+- **Endpoints**: CRUD completo em `/api/doctors`, `/api/appointments`, `/api/appointment-types`, `/api/clinic-rooms`
+- **Funcionalidades**: Agendamento com validação de conflitos, status de consulta
+- **Frontend**: Interface de agendamentos com formulário e listagem
+- **Recursos**: Filtros por médico, paciente, data e status
 
 ### **4. Prontuário Ortopédico**
 ```
@@ -175,4 +189,34 @@ Implemente faturamento para atendimentos particulares:
 - Frontend: tela de geração de fatura e status de pagamento.
 
 [ ] Concluído
+```
+
+---
+
+## **Correções e Melhorias Implementadas**
+
+### **Correção de Campos da API (Janeiro 2025)**
+```
+Corrigir incompatibilidade entre campos camelCase (frontend) e snake_case (backend):
+
+- Problema: Campos como roomNumber, roomType, isAvailable não existiam na API
+- Solução: Atualizar frontend para usar room_number, room_type, is_available
+- Arquivos corrigidos: rooms.tsx, appointment-form.tsx
+- Validação: Função getRoomTypeColor com tratamento de campos indefinidos
+
+[x] Concluído
+```
+
+### **Correção de SelectItem com Value Vazio (Janeiro 2025)**
+```
+Resolver erro do plugin runtime-error-plugin com SelectItem value="":
+
+- Problema: SelectItem não pode ter prop value com string vazia
+- Solução: Substituir value="" por value="none" em formulários
+- Arquivos corrigidos: patient-form.tsx, appointment-form.tsx
+- Lógica: Conversão de "none" para null antes de enviar para API
+
+[x] Concluído
+```
+
 ```

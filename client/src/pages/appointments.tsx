@@ -175,7 +175,14 @@ export default function Appointments() {
                           <div className="flex items-center">
                             <Clock className="mr-2 h-4 w-4 text-gray-400" />
                             <div>
-                              <p className="font-medium">{format(new Date(appointment.appointmentDate), "dd/MM/yyyy", { locale: ptBR })}</p>
+                              <p className="font-medium">
+                  {appointment.appointmentDate ? (
+                    (() => {
+                      const date = new Date(appointment.appointmentDate);
+                      return isNaN(date.getTime()) ? 'Data inválida' : format(date, "dd/MM/yyyy", { locale: ptBR });
+                    })()
+                  ) : 'Não informado'}
+                </p>
                               <p className="text-sm text-gray-500">{appointment.appointmentTime}</p>
                             </div>
                           </div>

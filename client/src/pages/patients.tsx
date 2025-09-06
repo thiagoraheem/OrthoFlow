@@ -127,7 +127,12 @@ export default function Patients() {
                         <TableCell>
                           <div className="flex items-center">
                             <Calendar className="mr-2 h-4 w-4 text-gray-400" />
-                            {format(new Date(patient.dateOfBirth), "dd/MM/yyyy", { locale: ptBR })}
+                            {patient.dateOfBirth ? (
+                              (() => {
+                                const date = new Date(patient.dateOfBirth);
+                                return isNaN(date.getTime()) ? 'Data inválida' : format(date, "dd/MM/yyyy", { locale: ptBR });
+                              })()
+                            ) : 'Não informado'}
                           </div>
                         </TableCell>
                         <TableCell>

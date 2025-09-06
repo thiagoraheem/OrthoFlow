@@ -10,11 +10,14 @@
 - **Banco de dados**: PostgreSQL com Alembic para migrações (migrado do SQLite)
 - **Frontend React**: Integração com backend via AuthContext atualizado
 - **CORS configurado**: Comunicação frontend-backend funcionando
-- **Modelos de dados**: User, Doctor, Patient, Appointment, etc.
+- **Modelos de dados**: User, Doctor, Patient, Appointment, InsurancePlan, ClinicRoom, AppointmentType
 - **Infraestrutura**: Configuração PostgreSQL em produção (Host: 54.232.194.197)
+- **Módulo Pacientes**: CRUD completo com validações e busca
+- **Módulo Agenda**: Sistema de agendamentos multi-profissional
+- **Correções**: Campos da API e SelectItem com values vazios
 
 ### 🔄 Em desenvolvimento
-- Módulos de pacientes, agenda e prontuário ortopédico
+- Prontuário ortopédico eletrônico
 
 ---
 
@@ -39,15 +42,15 @@
   - [x] Banco de dados SQLite com migrações (Alembic).  
   - [x] Autenticação JWT implementada (login, registro, verificação de token).  
 
-- [ ] **Módulo Paciente**  
-  - [ ] CRUD de paciente (dados pessoais, convênio, alergias, contatos).  
-  - [ ] Associação paciente → plano de saúde.  
-  - [ ] Busca com filtros.  
+- [x] **Módulo Paciente**  
+  - [x] CRUD de paciente (dados pessoais, convênio, alergias, contatos).  
+  - [x] Associação paciente → plano de saúde.  
+  - [x] Busca com filtros.  
 
-- [ ] **Agenda**  
-  - [ ] CRUD de profissionais.  
-  - [ ] Agenda multi-profissional (slots, bloqueios, encaixes).  
-  - [ ] Confirmação de agendamento (simulado via e-mail/WhatsApp).  
+- [x] **Agenda**  
+  - [x] CRUD de profissionais.  
+  - [x] Agenda multi-profissional (slots, bloqueios, encaixes).  
+  - [x] Confirmação de agendamento (simulado via e-mail/WhatsApp).  
 
 - [ ] **Prontuário Ortopédico**  
   - [ ] Templates ortopédicos (anamnese, exame físico).  
