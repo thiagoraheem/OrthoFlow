@@ -132,11 +132,11 @@ export default function Dashboard() {
   return (
     <div>
       {/* Top Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4">
+      <header className="bg-card shadow-sm border-b border-border px-4 sm:px-6 py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-medical-text">Agenda</h2>
-            <p className="text-gray-500 text-sm sm:text-base">{getDateRangeText()}</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Agenda</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">{getDateRangeText()}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             {/* Navigation Controls */}
