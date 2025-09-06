@@ -133,8 +133,118 @@ export const insertDoctorSchema = createInsertSchema(doctors).omit({
   id: true,
 });
 
-export const insertPatientSchema = createInsertSchema(patients).omit({
+// Schema base do paciente
+const basePatientSchema = createInsertSchema(patients).omit({
   id: true,
+});
+
+// Função para validar CPF
+const validateCPF = (cpf: string): boolean => {
+  if (!cpf) return false;
+  
+  // Remove caracteres não numéricos
+  const cleanCPF = cpf.replace(/\D/g, '');
+  
+  // Verifica se tem 11 dígitos
+  if (cleanCPF.length !== 11) return false;
+  
+  // Verifica se todos os dígitos são iguais
+  if (/^(\d)\1{10}$/.test(cleanCPF)) return false;
+  
+  // Validação dos dígitos verificadores
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(cleanCPF.charAt(i)) * (10 - i);
+  }
+  let remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  if (remainder !== parseInt(cleanCPF.charAt(9))) return false;
+  
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(cleanCPF.charAt(i)) * (11 - i);
+  }
+  remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  if (remainder !== parseInt(cleanCPF.charAt(10))) return false;
+  
+  return true;
+};
+
+// Função para validar telefone brasileiro
+const validatePhone = (phone: string): boolean => {
+  if (!phone) return false;
+  const cleanPhone = phone.replace(/\D/g, '');
+  return cleanPhone.length >= 10 && cleanPhone.length <= 11;
+};
+
+// Função para validar data de nascimento
+const validateBirthDate = (date: string): boolean => {
+  if (!date) return false;
+  const birthDate = new Date(date);
+  const today = new Date();
+  const age = today.getFullYear() - birthDate.getFullYear();
+  return birthDate <= today && age <= 120;
+};
+
+// Schema aprimorado com validações customizadas
+export const insertPatientSchema = z.object({
+  firstName: z.string()
+    .min(2, "Nome deve ter pelo menos 2 caracteres")
+    .max(50, "Nome deve ter no máximo 50 caracteres")
+    .regex(/^[A-Za-zÀ-ÿ\s]+$/, "Nome deve conter apenas letras e espaços"),
+  
+  lastName: z.string()
+    .min(2, "Sobrenome deve ter pelo menos 2 caracteres")
+    .max(50, "Sobrenome deve ter no máximo 50 caracteres")
+    .regex(/^[A-Za-zÀ-ÿ\s]+$/, "Sobrenome deve conter apenas letras e espaços"),
+  
+  cpf: z.string()
+    .min(1, "CPF é obrigatório")
+    .refine(validateCPF, "CPF inválido. Verifique o formato e os dígitos"),
+  
+  dateOfBirth: z.string()
+    .min(1, "Data de nascimento é obrigatória")
+    .refine(validateBirthDate, "Data de nascimento inválida"),
+  
+  phone: z.string()
+    .min(1, "Telefone é obrigatório")
+    .refine(validatePhone, "Telefone deve ter entre 10 e 11 dígitos"),
+  
+  email: z.string()
+    .email("Email inválido")
+    .optional()
+    .or(z.literal("")),
+  
+  address: z.string()
+    .min(10, "Endereço deve ter pelo menos 10 caracteres")
+    .max(200, "Endereço deve ter no máximo 200 caracteres"),
+  
+  emergencyContact: z.string()
+    .min(2, "Nome do contato de emergência é obrigatório")
+    .max(100, "Nome do contato deve ter no máximo 100 caracteres")
+    .regex(/^[A-Za-zÀ-ÿ\s]+$/, "Nome deve conter apenas letras e espaços"),
+  
+  emergencyPhone: z.string()
+    .min(1, "Telefone de emergência é obrigatório")
+    .refine(validatePhone, "Telefone de emergência deve ter entre 10 e 11 dígitos"),
+  
+  medicalHistory: z.string()
+    .max(1000, "Histórico médico deve ter no máximo 1000 caracteres")
+    .optional()
+    .or(z.literal("")),
+  
+  allergies: z.string()
+    .max(500, "Alergias deve ter no máximo 500 caracteres")
+    .optional()
+    .or(z.literal("")),
+  
+  insurancePlanId: z.string().optional().or(z.literal("")),
+  
+  insuranceNumber: z.string()
+    .max(50, "Número do convênio deve ter no máximo 50 caracteres")
+    .optional()
+    .or(z.literal(""))
 });
 
 export const insertClinicRoomSchema = createInsertSchema(clinicRooms).omit({

@@ -150,7 +150,14 @@ async def update_patient(
         update_data = patient_data.dict(exclude_unset=True)
         print(f"[DEBUG] Update data: {update_data}")
         
+        # Campos obrigatórios que não devem ser definidos como None
+        required_fields = ['emergency_contact', 'emergency_phone', 'address']
+        
         for field, value in update_data.items():
+            # Não atualizar campos obrigatórios se o valor for None
+            if field in required_fields and value is None:
+                print(f"[DEBUG] Skipping {field} = {value} (required field cannot be None)")
+                continue
             print(f"[DEBUG] Setting {field} = {value}")
             setattr(patient, field, value)
         
