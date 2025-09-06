@@ -29,7 +29,7 @@ export default function PatientForm() {
   const queryClient = useQueryClient();
 
   const { data: insurancePlans = [] } = useQuery<any[]>({
-    queryKey: ["/api/insurance"],
+    queryKey: ["/api/insurance-plans"],
   });
 
   const form = useForm({
@@ -75,7 +75,7 @@ export default function PatientForm() {
     const mappedData = {
       first_name: data.firstName,
       last_name: data.lastName,
-      cpf: data.cpf || "00000000000", // CPF temporário se não fornecido
+      cpf: data.cpf && data.cpf.trim() !== "" ? data.cpf : null, // CPF apenas se fornecido
       date_of_birth: data.dateOfBirth,
       phone: data.phone,
       email: data.email || null,

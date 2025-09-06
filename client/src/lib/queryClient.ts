@@ -24,7 +24,7 @@ export async function apiRequest(
   }
 
   const baseUrl = url.startsWith('http') ? url : `http://localhost:8000${url}`;
-  const fullUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const fullUrl = baseUrl;
   const res = await fetch(fullUrl, {
     method,
     headers,

@@ -158,7 +158,34 @@ class PatientUpdate(BaseModel):
     def validate_cpf(cls, v):
         if v is None:
             return v
-        return PatientBase.__validators__['validate_cpf'](cls, v)
+        # Remove caracteres não numéricos
+        cpf = re.sub(r'\D', '', v)
+        
+        # Verifica se tem 11 dígitos
+        if len(cpf) != 11:
+            raise ValueError('CPF deve ter 11 dígitos')
+        
+        # Verifica se não são todos os dígitos iguais
+        if cpf == cpf[0] * 11:
+            raise ValueError('CPF inválido')
+        
+        # Validação do CPF
+        def calculate_digit(cpf_digits, weights):
+            total = sum(int(digit) * weight for digit, weight in zip(cpf_digits, weights))
+            remainder = total % 11
+            return 0 if remainder < 2 else 11 - remainder
+        
+        # Primeiro dígito verificador
+        first_digit = calculate_digit(cpf[:9], range(10, 1, -1))
+        if int(cpf[9]) != first_digit:
+            raise ValueError('CPF inválido')
+        
+        # Segundo dígito verificador
+        second_digit = calculate_digit(cpf[:10], range(11, 1, -1))
+        if int(cpf[10]) != second_digit:
+            raise ValueError('CPF inválido')
+        
+        return cpf
 
 class Patient(PatientBase):
     id: uuid.UUID

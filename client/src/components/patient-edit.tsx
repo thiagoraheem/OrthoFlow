@@ -36,7 +36,7 @@ export default function PatientEdit({ patient, onSuccess }: PatientEditProps) {
   const queryClient = useQueryClient();
 
   const { data: insurancePlans = [] } = useQuery<any[]>({
-    queryKey: ["/api/insurance"],
+    queryKey: ["/api/insurance-plans"],
   });
 
   const form = useForm({
@@ -110,7 +110,6 @@ export default function PatientEdit({ patient, onSuccess }: PatientEditProps) {
     const mappedData = {
       first_name: data.firstName,
       last_name: data.lastName,
-      cpf: data.cpf || "00000000000",
       date_of_birth: data.dateOfBirth,
       phone: data.phone,
       email: data.email || null,
@@ -122,6 +121,11 @@ export default function PatientEdit({ patient, onSuccess }: PatientEditProps) {
       insurance_plan_id: data.insurancePlanId === "none" ? null : data.insurancePlanId || null,
       insurance_number: data.insuranceNumber || null,
     };
+    
+    // Adicionar CPF apenas se não estiver vazio
+    if (data.cpf && data.cpf.trim() !== "") {
+      mappedData.cpf = data.cpf;
+    }
     
     // Remover campos vazios
     const cleanedData = Object.fromEntries(

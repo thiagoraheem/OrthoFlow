@@ -18,6 +18,7 @@ export const patients = sqliteTable("patients", {
   id: text("id").primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
+  cpf: text("cpf").notNull().unique(),
   dateOfBirth: text("date_of_birth").notNull(),
   phone: text("phone").notNull(),
   email: text("email"),
@@ -25,6 +26,7 @@ export const patients = sqliteTable("patients", {
   emergencyContact: text("emergency_contact").notNull(),
   emergencyPhone: text("emergency_phone").notNull(),
   medicalHistory: text("medical_history"),
+  allergies: text("allergies"),
   insurancePlanId: text("insurance_plan_id").references(() => insurancePlans.id),
   insuranceNumber: text("insurance_number"),
 });

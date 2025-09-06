@@ -106,13 +106,18 @@ async def update_patient(
 ):
     """Atualizar paciente."""
     
+    print(f"[DEBUG] Updating patient {patient_id} with data: {patient_data.dict(exclude_unset=True)}")
+    
     # Buscar paciente
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     if not patient:
+        print(f"[ERROR] Patient {patient_id} not found")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Patient not found"
         )
+    
+    print(f"[DEBUG] Found patient: {patient.first_name} {patient.last_name}")
     
     # Verificar se CPF já existe em outro paciente (se CPF foi alterado)
     if patient_data.cpf and patient_data.cpf != patient.cpf:
@@ -121,6 +126,7 @@ async def update_patient(
             Patient.id != patient_id
         ).first()
         if existing_patient:
+            print(f"[ERROR] CPF {patient_data.cpf} already exists for another patient")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Patient with this CPF already exists"
@@ -128,10 +134,12 @@ async def update_patient(
     
     # Verificar se plano de saúde existe (se fornecido)
     if patient_data.insurance_plan_id:
+        print(f"[DEBUG] Checking insurance plan: {patient_data.insurance_plan_id}")
         insurance_plan = db.query(InsurancePlan).filter(
             InsurancePlan.id == patient_data.insurance_plan_id
         ).first()
         if not insurance_plan:
+            print(f"[ERROR] Insurance plan {patient_data.insurance_plan_id} not found")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Insurance plan not found"
@@ -140,17 +148,26 @@ async def update_patient(
     # Atualizar campos
     try:
         update_data = patient_data.dict(exclude_unset=True)
+        print(f"[DEBUG] Update data: {update_data}")
+        
         for field, value in update_data.items():
+            print(f"[DEBUG] Setting {field} = {value}")
             setattr(patient, field, value)
         
+        print(f"[DEBUG] Committing changes to database")
         db.commit()
         db.refresh(patient)
+        print(f"[DEBUG] Patient updated successfully")
         return patient
     except Exception as e:
+        print(f"[ERROR] Exception during patient update: {str(e)}")
+        print(f"[ERROR] Exception type: {type(e).__name__}")
+        import traceback
+        print(f"[ERROR] Traceback: {traceback.format_exc()}")
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error updating patient"
+            detail=f"Error updating patient: {str(e)}"
         )
 
 @router.delete("/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
