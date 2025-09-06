@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Stethoscope, Eye, EyeOff } from "lucide-react";
 
 export default function LoginForm() {
@@ -59,14 +59,26 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-medical-bg px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-medical-blue rounded-full flex items-center justify-center mb-4">
-            <Stethoscope className="text-white text-2xl" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-medical-blue">OrthoCare</CardTitle>
-          <p className="text-gray-600">Sistema de Gestão Clínica</p>
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url('/src/assets/orthopedic-background.svg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
+      
+      <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm relative z-10">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold text-medical-text">
+            OrthoFlow
+          </CardTitle>
+          <CardDescription className="text-gray-600">
+            Sistema de Gestão Ortopédica
+          </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
