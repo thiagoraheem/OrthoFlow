@@ -28,7 +28,7 @@ import DoctorForm from "@/components/forms/doctor-form";
 import { format, addDays, startOfWeek, endOfWeek, addWeeks, subWeeks, addMonths, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/contexts/AuthContext";
-import type { AppointmentWithDetails, Doctor } from "@shared/schema";
+import type { AppointmentWithDetails, Doctor } from "@/types/api";
 
 export default function Dashboard() {
   const { user } = useAuth();

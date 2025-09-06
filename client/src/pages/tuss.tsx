@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/lib/queryClient';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 interface TussStatistics {
@@ -16,7 +16,7 @@ export default function TussPage() {
   const { data: tussStats, isLoading: isLoadingStats } = useQuery({
     queryKey: ['/api/tuss-statistics'],
     queryFn: async () => {
-      const response = await fetch('/api/tuss-statistics');
+      const response = await apiRequest('GET', '/api/tuss-statistics');
       return response.json();
     },
   });
@@ -24,13 +24,7 @@ export default function TussPage() {
   // Mutation para importar dados TUSS
   const importMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/tuss-import', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ importedBy: 'admin' })
-      });
+      const response = await apiRequest('POST', '/api/tuss-import', { importedBy: 'admin' });
       return response.json();
     },
     onSuccess: (result) => {

@@ -1,6 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import type { User, AuthContextType, LoginCredentials } from "@shared/auth";
+import type { User, LoginCredentials } from "@/types/api";
 import { apiRequest } from "@/lib/queryClient";
+
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  logout: () => void;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

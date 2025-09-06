@@ -17,7 +17,7 @@ import {
 import AppointmentForm from "@/components/forms/appointment-form";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import type { AppointmentWithDetails } from "@shared/schema";
+import type { AppointmentWithDetails } from "@/types/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Appointments() {

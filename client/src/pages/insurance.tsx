@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { InsurancePlan, PatientWithInsurance } from "@shared/schema";
+import type { InsurancePlan, PatientWithInsurance } from "@/types/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Insurance() {

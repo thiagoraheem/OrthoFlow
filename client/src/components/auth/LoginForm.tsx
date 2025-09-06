@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LoginCredentials } from "@shared/auth";
+import { loginSchema, type LoginCredentials } from "@/schemas/validation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -128,7 +128,7 @@ export default function LoginForm() {
 
               <Button 
                 type="submit" 
-                className="w-full bg-medical-blue hover:bg-blue-700"
+                className="w-full"
                 disabled={isLoading}
                 data-testid="button-login"
               >

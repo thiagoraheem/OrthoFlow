@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import DoctorForm from "@/components/forms/doctor-form";
-import type { Doctor } from "@shared/schema";
+import type { Doctor } from "@/types/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Doctors() {

@@ -4,7 +4,7 @@ import { User, Phone, Mail, Calendar, MapPin, Heart, FileText, CreditCard } from
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import type { PatientWithInsurance } from "@shared/schema";
+import type { PatientWithInsurance } from "@/types/api";
 
 interface PatientViewProps {
   patient: PatientWithInsurance;

@@ -17,7 +17,7 @@ import {
 import PatientForm from "@/components/forms/patient-form";
 import PatientView from "@/components/patient-view";
 import PatientEdit from "@/components/patient-edit";
-import type { PatientWithInsurance } from "@shared/schema";
+import type { PatientWithInsurance } from "@/types/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";

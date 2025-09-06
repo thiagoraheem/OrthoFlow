@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ClinicRoom } from "@shared/schema";
+import type { ClinicRoom } from "@/types/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 function Rooms() {
