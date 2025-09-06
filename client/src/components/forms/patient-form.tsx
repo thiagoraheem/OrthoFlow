@@ -42,7 +42,11 @@ import {
   validateOptionalText
 } from "@/lib/validation-utils";
 
-export default function PatientForm() {
+interface PatientFormProps {
+  onCancel?: () => void;
+}
+
+export default function PatientForm({ onCancel }: PatientFormProps = {}) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isFormValid, setIsFormValid] = useState(false);
@@ -579,7 +583,7 @@ export default function PatientForm() {
             </div>
             
             <div className="flex gap-2">
-              <Button type="button" variant="outline" size="lg">
+              <Button type="button" variant="outline" size="lg" onClick={onCancel}>
                 Cancelar
               </Button>
               <Button

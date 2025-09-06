@@ -224,6 +224,7 @@ export default function Patients() {
             <PatientEdit 
               patient={editPatient} 
               onSuccess={() => setEditPatient(null)}
+              onCancel={() => setEditPatient(null)}
             />
           )}
         </DialogContent>

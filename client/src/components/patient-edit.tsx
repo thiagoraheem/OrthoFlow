@@ -29,9 +29,10 @@ import { useEffect } from "react";
 interface PatientEditProps {
   patient: PatientWithInsurance;
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export default function PatientEdit({ patient, onSuccess }: PatientEditProps) {
+export default function PatientEdit({ patient, onSuccess, onCancel }: PatientEditProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -381,7 +382,7 @@ export default function PatientEdit({ patient, onSuccess }: PatientEditProps) {
           </div>
 
           <div className="flex items-center justify-end space-x-4 pt-6 border-t border-border sticky bottom-0 bg-card">
-            <Button type="button" variant="outline">
+            <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
             </Button>
             <Button 
