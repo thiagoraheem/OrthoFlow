@@ -96,7 +96,7 @@ export default function Sidebar() {
         <Button
           variant="ghost"
           size="sm"
-          className="fixed top-4 left-4 z-50 bg-white shadow-md hover:bg-gray-50 border"
+          className="fixed top-4 left-4 z-50 bg-card shadow-md hover:bg-accent border"
           onClick={toggleSidebar}
           data-testid="mobile-menu-toggle"
         >
@@ -106,7 +106,7 @@ export default function Sidebar() {
 
       <aside 
         className={cn(
-          "bg-white shadow-lg border-r border-gray-200 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
+          "bg-card shadow-lg border-r border-border flex flex-col min-h-screen transition-all duration-300 ease-in-out",
           isMobile 
             ? "fixed left-0 top-0 z-50" 
             : "fixed left-0 top-0 z-10",
@@ -121,20 +121,20 @@ export default function Sidebar() {
       >
         {/* Logo Header */}
         <div className={cn(
-          "border-b border-gray-200 transition-all duration-300 flex items-center justify-center",
+          "border-b border-border transition-all duration-300 flex items-center justify-center",
           isCollapsed && !isMobile ? "p-3" : "p-6"
         )}>
           <div className={cn(
             "flex items-center transition-all duration-300",
             isCollapsed && !isMobile ? "justify-center" : "space-x-3"
           )}>
-            <div className="w-10 h-10 bg-medical-blue rounded-lg flex items-center justify-center flex-shrink-0">
-              <Stethoscope className="text-white text-lg" />
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+              <Stethoscope className="text-primary-foreground text-lg" />
             </div>
             {(!isCollapsed || isMobile) && (
               <div className="overflow-hidden">
-                <h1 className="text-xl font-bold text-medical-blue whitespace-nowrap">OrthoCare</h1>
-                <p className="text-sm text-gray-500 whitespace-nowrap">Sistema de Gestão</p>
+                <h1 className="text-xl font-bold text-primary whitespace-nowrap">OrthoCare</h1>
+                <p className="text-sm text-muted-foreground whitespace-nowrap">Sistema de Gestão</p>
               </div>
             )}
           </div>
@@ -143,7 +143,7 @@ export default function Sidebar() {
         {/* Collapse button for desktop */}
         {!isMobile && (
           <div className={cn(
-            "border-b border-gray-200 transition-all duration-300",
+            "border-b border-border transition-all duration-300",
             isCollapsed ? "px-2 py-2" : "px-4 py-2"
           )}>
             <Button
@@ -182,8 +182,8 @@ export default function Sidebar() {
                       className={cn(
                         "flex items-center rounded-lg font-medium transition-all duration-300 cursor-pointer group",
                         isActive
-                          ? "text-medical-blue bg-blue-50"
-                          : "text-gray-700 hover:bg-gray-50",
+                          ? "text-primary bg-primary/10"
+                          : "text-foreground hover:bg-accent",
                         isCollapsed && !isMobile
                           ? "px-3 py-3 justify-center relative"
                           : "px-4 py-3"
@@ -199,7 +199,7 @@ export default function Sidebar() {
                       )}
                       {/* Tooltip for collapsed state */}
                       {isCollapsed && !isMobile && (
-                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 border">
                           {item.name}
                         </div>
                       )}
@@ -213,20 +213,20 @@ export default function Sidebar() {
 
         {/* User Profile */}
         <div className={cn(
-          "border-t border-gray-200 space-y-3 transition-all duration-300",
+          "border-t border-border space-y-3 transition-all duration-300",
           isCollapsed && !isMobile ? "p-2" : "p-4"
         )}>
           <div className={cn(
             "flex items-center transition-all duration-300",
             isCollapsed && !isMobile ? "flex-col space-y-2" : "space-x-3"
           )}>
-            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="text-gray-600 text-sm" />
+            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="text-muted-foreground text-sm" />
             </div>
             {(!isCollapsed || isMobile) && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user.name}</p>
-                <p className="text-xs text-gray-500 truncate">{user.userType}</p>
+                <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{user.userType}</p>
               </div>
             )}
           </div>
@@ -244,7 +244,7 @@ export default function Sidebar() {
             size="sm"
             onClick={logout}
             className={cn(
-              "text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300",
+              "text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-300",
               isCollapsed && !isMobile 
                 ? "w-full p-2 justify-center" 
                 : "w-full justify-start"

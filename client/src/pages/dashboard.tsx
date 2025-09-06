@@ -293,14 +293,14 @@ export default function Dashboard() {
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Schedule */}
-          <Card className="xl:col-span-2">
+          <Card className="xl:col-span-2 shadow-sm hover:shadow-md transition-all duration-200 border-border">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>
+                <CardTitle className="text-foreground">
                   {viewMode === "day" ? "Agenda de Hoje" : 
                    viewMode === "week" ? "Agenda da Semana" : "Agenda do Mês"}
                 </CardTitle>
-                <Button variant="ghost" className="text-medical-blue hover:text-blue-700">
+                <Button variant="ghost" className="text-primary hover:text-primary/80 shadow-sm hover:shadow-md transition-all duration-200">
                   Ver Todas
                 </Button>
               </div>
@@ -308,14 +308,14 @@ export default function Dashboard() {
             <CardContent>
               {appointmentsLoading ? (
                 <div className="space-y-4">
-                  <div className="animate-pulse bg-gray-200 h-16 sm:h-20 rounded-lg"></div>
-                  <div className="animate-pulse bg-gray-200 h-16 sm:h-20 rounded-lg"></div>
-                  <div className="animate-pulse bg-gray-200 h-16 sm:h-20 rounded-lg"></div>
+                  <div className="animate-pulse bg-muted h-16 sm:h-20 rounded-lg"></div>
+                  <div className="animate-pulse bg-muted h-16 sm:h-20 rounded-lg"></div>
+                  <div className="animate-pulse bg-muted h-16 sm:h-20 rounded-lg"></div>
                 </div>
               ) : filteredAppointments.length === 0 ? (
                 <div className="text-center py-8">
-                  <Calendar className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-                  <p className="mt-2 text-gray-500 text-sm sm:text-base">
+                  <Calendar className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
+                  <p className="mt-2 text-muted-foreground text-sm sm:text-base">
                     {viewMode === "day" ? "Nenhuma consulta agendada para hoje" :
                      viewMode === "week" ? "Nenhuma consulta agendada para esta semana" :
                      "Nenhuma consulta agendada para este mês"}
@@ -497,7 +497,7 @@ export default function Dashboard() {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button 
-                          className="w-full bg-medical-blue hover:bg-blue-700 justify-center text-sm"
+                          className="w-full bg-primary hover:bg-primary/90 justify-center text-sm"
                           data-testid="button-register-patient"
                         >
                           <UserPlus className="mr-2 h-4 w-4" />
@@ -512,7 +512,7 @@ export default function Dashboard() {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button 
-                          className="w-full bg-health-green hover:bg-green-600 justify-center text-sm"
+                          className="w-full bg-secondary hover:bg-secondary/80 justify-center text-sm"
                           data-testid="button-add-doctor"
                         >
                           <Stethoscope className="mr-2 h-4 w-4" />
@@ -529,7 +529,7 @@ export default function Dashboard() {
                 {(user?.userType === "Administrador" || user?.userType === "Controlador") && (
                   <>
                     <Button 
-                      className="w-full bg-info-blue hover:bg-cyan-700 justify-center text-sm"
+                      className="w-full bg-blue-600 hover:bg-blue-700 justify-center text-sm"
                       data-testid="button-manage-rooms"
                     >
                       <DoorOpen className="mr-2 h-4 w-4" />

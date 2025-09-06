@@ -58,10 +58,10 @@ export default function TussPage() {
     <div className="container mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-foreground">
             Sistema TUSS
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-muted-foreground mt-2">
             Gerenciamento da Terminologia Unificada da Saúde Suplementar
           </p>
         </div>
@@ -69,7 +69,7 @@ export default function TussPage() {
         <button 
           onClick={handleImportTuss} 
           disabled={importMutation.isPending}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg disabled:opacity-50"
           data-testid="button-import-tuss"
         >
           {importMutation.isPending ? 'Importando...' : 'Importar TUSS'}
@@ -77,45 +77,45 @@ export default function TussPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <div className="bg-card p-6 rounded-lg shadow">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Total de Códigos
             </h3>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-bold" data-testid="text-total-codes">
+            <div className="text-2xl font-bold text-foreground" data-testid="text-total-codes">
               {isLoadingStats ? '...' : (tussStats?.totalCodes?.toLocaleString() || '0')}
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground">
               códigos TUSS disponíveis
             </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <div className="bg-card p-6 rounded-lg shadow">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Última Importação
             </h3>
           </div>
           <div className="mt-2">
-            <div className="text-2xl font-bold" data-testid="text-last-import">
+            <div className="text-2xl font-bold text-foreground" data-testid="text-last-import">
               {isLoadingStats ? '...' : 
                tussStats?.lastImport ? 
                  new Date(tussStats.lastImport).toLocaleDateString('pt-BR') : 
                  'Nunca'
               }
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground">
               data da última atualização
             </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <div className="bg-card p-6 rounded-lg shadow">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Status do Sistema
             </h3>
           </div>
@@ -123,23 +123,23 @@ export default function TussPage() {
             <div className="text-2xl font-bold text-green-600" data-testid="text-system-status">
               Ativo
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground">
               sistema operacional
             </p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">Sobre o Sistema TUSS</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+      <div className="bg-card p-6 rounded-lg shadow">
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Sobre o Sistema TUSS</h3>
+        <p className="text-muted-foreground mb-4">
           A Terminologia Unificada da Saúde Suplementar (TUSS) é um padrão estabelecido pela ANS para codificação de procedimentos médicos.
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h4 className="font-semibold text-base mb-2">Tabelas Principais:</h4>
-            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+            <h4 className="font-semibold text-base mb-2 text-foreground">Tabelas Principais:</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• Tabela 22 - Procedimentos Médicos</li>
               <li>• Tabela 23 - Procedimentos Odontológicos</li>
               <li>• Tabela 24 - Procedimentos Fonoaudiológicos</li>
@@ -147,8 +147,8 @@ export default function TussPage() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-base mb-2">Funcionalidades:</h4>
-            <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+            <h4 className="font-semibold text-base mb-2 text-foreground">Funcionalidades:</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• Importação automática dos dados da ANS</li>
               <li>• Busca e filtros avançados</li>
               <li>• Integração com solicitações de exames</li>
@@ -158,10 +158,10 @@ export default function TussPage() {
         </div>
 
         {importMutation.isPending && (
-          <div className="mt-6 bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="mt-6 bg-primary/10 p-4 rounded-lg border border-primary/20">
             <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+              <span className="text-sm font-medium text-primary">
                 Importando dados TUSS da ANS... Isso pode levar alguns minutos.
               </span>
             </div>

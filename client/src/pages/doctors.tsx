@@ -41,16 +41,16 @@ export default function Doctors() {
   return (
     <div>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4">
+      <header className="bg-card shadow-sm border-b border-border px-4 sm:px-6 py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-medical-text">Médicos</h2>
-            <p className="text-gray-500 text-sm sm:text-base">Gerenciar perfis e informações médicas</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Médicos</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">Gerenciar perfis e informações médicas</p>
           </div>
           {(user?.userType === "Administrador" || user?.userType === "Atendente") && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="bg-medical-blue hover:bg-blue-700" data-testid="button-new-doctor">
+                <Button className="bg-primary hover:bg-primary/90" data-testid="button-new-doctor">
                   <Plus className="mr-2 h-4 w-4" />
                   Novo Médico
                 </Button>
