@@ -1,5 +1,22 @@
 # 📘 Documento 1 – Blueprint & Checklist de Desenvolvimento
 
+## 🔹 Status Atual do Projeto
+**Última atualização**: Janeiro 2025  
+**Fase atual**: MVP v1 - Configuração inicial concluída  
+
+### ✅ Implementado
+- **Backend FastAPI**: Estrutura completa com routers organizados
+- **Autenticação JWT**: Endpoints de login, registro e verificação de token
+- **Banco de dados**: SQLite com Alembic para migrações
+- **Frontend React**: Integração com backend via AuthContext atualizado
+- **CORS configurado**: Comunicação frontend-backend funcionando
+- **Modelos de dados**: User, Doctor, Patient, Appointment, etc.
+
+### 🔄 Em desenvolvimento
+- Módulos de pacientes, agenda e prontuário ortopédico
+
+---
+
 ## 🔹 Visão Geral (Blueprint)
 - **Nome do Projeto**: OrthoFlow  
 - **Escopo Inicial (MVP)**: Gestão de pacientes, agenda, prontuário eletrônico ortopédico, fluxo de densitometria (DXA), convênios/planos, faturamento particular e via TISS (Consulta e SP/SADT).  
@@ -15,11 +32,11 @@
 ## 🔹 Checklist de Desenvolvimento (Prioridades)
 
 ### **Fase 1 – Núcleo (MVP v1)**
-- [ ] **Configuração inicial do projeto**  
-  - [ ] Estruturar backend no Replit (API com endpoints básicos).  
-  - [ ] Criar frontend (React, já iniciado no OrthoFlow).  
-  - [ ] Banco de dados com migrações (PostgreSQL).  
-  - [ ] Autenticação de usuários (JWT/OAuth básico).  
+- [x] **Configuração inicial do projeto**  
+  - [x] Estruturar backend FastAPI com endpoints básicos.  
+  - [x] Integrar frontend React existente com o backend.  
+  - [x] Banco de dados SQLite com migrações (Alembic).  
+  - [x] Autenticação JWT implementada (login, registro, verificação de token).  
 
 - [ ] **Módulo Paciente**  
   - [ ] CRUD de paciente (dados pessoais, convênio, alergias, contatos).  
@@ -75,4 +92,4 @@
 - [ ] **Segurança & LGPD**  
   - [ ] Perfis de acesso (médico, recepção, financeiro).  
   - [ ] Auditoria de acessos.  
-  - [ ] Consentimento digital do paciente.  
+  - [ ] Consentimento digital do paciente.

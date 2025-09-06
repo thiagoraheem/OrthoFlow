@@ -4,74 +4,75 @@ import { apiRequest } from "@/lib/queryClient";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEMO_USERS = [
-  {
-    id: "1",
-    username: "admin",
-    password: "admin123",
-    name: "Dr. Administrador",
-    email: "admin@orthocare.com",
-    userType: "Administrador" as const,
-    isActive: true,
-  },
-  {
-    id: "2", 
-    username: "medico",
-    password: "medico123",
-    name: "Dr. José Silva",
-    email: "medico@orthocare.com",
-    userType: "Médico" as const,
-    isActive: true,
-    doctorId: "doctor-id-1",
-  },
-  {
-    id: "3",
-    username: "atendente", 
-    password: "atendente123",
-    name: "Maria Santos",
-    email: "atendente@orthocare.com",
-    userType: "Atendente" as const,
-    isActive: true,
-  },
-  {
-    id: "4",
-    username: "controlador",
-    password: "controlador123", 
-    name: "João Pereira",
-    email: "controlador@orthocare.com",
-    userType: "Controlador" as const,
-    isActive: true,
-  },
-];
+// URL base da API FastAPI
+const API_BASE_URL = "http://localhost:8000/api";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se existe usuário logado no localStorage
-    const savedUser = localStorage.getItem("orthocare_user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        localStorage.removeItem("orthocare_user");
-      }
+    // Verificar se existe token no localStorage
+    const token = localStorage.getItem("orthocare_token");
+    if (token) {
+      // Verificar se o token ainda é válido
+      verifyToken(token);
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
+
+  const verifyToken = async (token: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+         const userData = await response.json();
+         setUser({
+           id: userData.id,
+           username: userData.email,
+           name: userData.full_name,
+           email: userData.email,
+           userType: userData.is_superuser ? "Administrador" : "Atendente",
+           isActive: userData.is_active
+         });
+      } else {
+        localStorage.removeItem("orthocare_token");
+      }
+    } catch (error) {
+      console.error("Erro ao verificar token:", error);
+      localStorage.removeItem("orthocare_token");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      // Simular autenticação com usuários demo
-      const foundUser = DEMO_USERS.find(
-        u => u.username === credentials.username && u.password === credentials.password
-      );
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: credentials.username,
+          password: credentials.password
+        })
+      });
 
-      if (foundUser && foundUser.isActive) {
-        const { password, ...userWithoutPassword } = foundUser;
-        setUser(userWithoutPassword);
-        localStorage.setItem("orthocare_user", JSON.stringify(userWithoutPassword));
+      if (response.ok) {
+        const data = await response.json();
+        const token = data.access_token;
+        
+        localStorage.setItem("orthocare_token", token);
+        
+        // Buscar dados do usuário
+        await verifyToken(token);
         return true;
       }
       return false;
@@ -83,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("orthocare_user");
+    localStorage.removeItem("orthocare_token");
   };
 
   return (
