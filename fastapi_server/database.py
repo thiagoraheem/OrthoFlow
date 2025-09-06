@@ -6,14 +6,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configuração do banco de dados - usando SQLite para desenvolvimento
+# Configuração do banco de dados - PostgreSQL
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "sqlite:///./orthoflow.db"
+    "postgresql://postgres:Blomaq2025$@54.232.194.197/orthoflow"
 )
 
 # Criar engine do SQLAlchemy
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    echo=False
+)
 
 # Criar SessionLocal para interações com o banco
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

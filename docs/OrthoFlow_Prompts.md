@@ -52,6 +52,43 @@ No frontend (React):
 
 ---
 
+## **Migração PostgreSQL - Janeiro 2025**
+
+### **Configuração realizada**
+- **Host**: 54.232.194.197
+- **Database**: orthoflow
+- **User**: postgres
+- **Password**: Blomaq2025$
+- **Port**: 5432 (padrão)
+
+### **Alterações implementadas**
+1. **Dependências**: psycopg2-binary já estava no requirements.txt
+2. **Configuração do banco**: Atualizada em `database.py` e `.env`
+3. **Migrações**: Executadas com sucesso via `python -m alembic upgrade head`
+4. **Testes**: Autenticação funcionando corretamente (registro, login, /me)
+5. **Pool de conexões**: Configurado com `pool_pre_ping=True` e `pool_recycle=300`
+
+### **Status da migração**
+✅ **Concluída com sucesso** - Sistema funcionando completamente com PostgreSQL
+
+### **Comandos de migração utilizados**
+```bash
+# Atualizar configurações
+# Editar fastapi_server/.env e database.py
+
+# Executar migrações
+cd fastapi_server
+python -m alembic upgrade head
+
+# Reiniciar servidor
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Testar funcionalidades
+# Registro, login e endpoints funcionando normalmente
+```
+
+---
+
 ## **Configurações Técnicas Implementadas**
 
 ### **Backend FastAPI**
@@ -74,8 +111,10 @@ No frontend (React):
 ### **Variáveis de ambiente**
 ```env
 # fastapi_server/.env
-SECRET_KEY=your-secret-key-here-change-in-production
-DATABASE_URL=sqlite:///./orthoflow.db
+SECRET_KEY=orthoflow-super-secret-key-change-in-production-2024
+DATABASE_URL=postgresql://postgres:Blomaq2025$@54.232.194.197/orthoflow
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
 ### **Comandos úteis**
@@ -87,8 +126,19 @@ python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 # Iniciar frontend
 npx vite
 
-# Criar usuário de teste
-python -c "from database import SessionLocal; from auth import create_user; db = SessionLocal(); user = create_user(db, 'admin@orthocare.com', 'admin123', 'Administrador'); print(f'Usuário criado: {user.email}'); db.close()"
+# Executar migrações (PostgreSQL)
+cd fastapi_server
+python -m alembic upgrade head
+
+# Criar usuário via API
+curl -X POST "http://localhost:8000/api/auth/register" \
+     -H "Content-Type: application/json" \
+     -d '{"email": "admin@orthoflow.com", "password": "admin123", "full_name": "Administrador"}'
+
+# Testar login
+curl -X POST "http://localhost:8000/api/auth/login" \
+     -H "Content-Type: application/json" \
+     -d '{"email": "admin@orthoflow.com", "password": "admin123"}'
 ```
 
 ### **3. Agenda**

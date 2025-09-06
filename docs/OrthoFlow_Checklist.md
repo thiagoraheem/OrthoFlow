@@ -7,10 +7,11 @@
 ### ✅ Implementado
 - **Backend FastAPI**: Estrutura completa com routers organizados
 - **Autenticação JWT**: Endpoints de login, registro e verificação de token
-- **Banco de dados**: SQLite com Alembic para migrações
+- **Banco de dados**: PostgreSQL com Alembic para migrações (migrado do SQLite)
 - **Frontend React**: Integração com backend via AuthContext atualizado
 - **CORS configurado**: Comunicação frontend-backend funcionando
 - **Modelos de dados**: User, Doctor, Patient, Appointment, etc.
+- **Infraestrutura**: Configuração PostgreSQL em produção (Host: 54.232.194.197)
 
 ### 🔄 Em desenvolvimento
 - Módulos de pacientes, agenda e prontuário ortopédico
