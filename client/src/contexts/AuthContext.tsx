@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
          const userData = await response.json();
          setUser({
            id: userData.id,
-           username: userData.email,
+           email: userData.email,
            name: userData.full_name,
            email: userData.email,
            userType: userData.is_superuser ? "Administrador" : "Atendente",
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          email: credentials.username,
+          email: credentials.email,
           password: credentials.password
         })
       });
