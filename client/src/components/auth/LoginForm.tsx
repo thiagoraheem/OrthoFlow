@@ -15,7 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Stethoscope, Eye, EyeOff } from "lucide-react";
+import { Stethoscope, Eye, EyeOff, Shield } from "lucide-react";
+import orthopedicBackground from "@/assets/orthopedic-background.jpg";
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -26,7 +27,7 @@ export default function LoginForm() {
   const form = useForm<LoginCredentials>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -60,42 +61,50 @@ export default function LoginForm() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 relative"
+      className="min-h-screen flex items-center justify-center p-4 relative bg-gradient-to-br from-medical-primary/5 to-medical-accent/10"
       style={{
-        backgroundImage: `url('/src/assets/orthopedic-background.svg')`,
+        backgroundImage: `url(${orthopedicBackground})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
     >
       {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
       
-      <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur-sm relative z-10">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold text-medical-text">
-            OrthoFlow
-          </CardTitle>
-          <CardDescription className="text-gray-600">
-            Sistema de Gestão Ortopédica
-          </CardDescription>
+      <Card className="w-full max-w-md shadow-medical border-0 bg-gradient-medical-card relative z-10 backdrop-blur-sm">
+        <CardHeader className="space-y-4 text-center pb-6">
+          <div className="flex justify-center">
+            <div className="p-3 rounded-full bg-gradient-medical-primary shadow-medical">
+              <Stethoscope className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <div>
+            <CardTitle className="text-3xl font-bold bg-gradient-medical-hero bg-clip-text text-transparent">
+              OrthoFlow
+            </CardTitle>
+            <CardDescription className="text-muted-foreground mt-2 font-medium">
+              Sistema de Gestão Ortopédica
+            </CardDescription>
+          </div>
         </CardHeader>
         
         <CardContent className="space-y-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
                 control={form.control}
-                name="username"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome de Usuário</FormLabel>
+                    <FormLabel className="text-foreground font-semibold">Nome de Usuário</FormLabel>
                     <FormControl>
                       <Input 
                         {...field} 
                         placeholder="Digite seu nome de usuário"
                         data-testid="input-username"
-                        autoComplete="username"
+                        autoComplete="email"
+                        className="h-11 border-2 transition-all duration-200 focus:border-medical-primary focus:shadow-medical"
                       />
                     </FormControl>
                     <FormMessage />
@@ -108,7 +117,7 @@ export default function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Senha</FormLabel>
+                    <FormLabel className="text-foreground font-semibold">Senha</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input 
@@ -117,18 +126,19 @@ export default function LoginForm() {
                           placeholder="Digite sua senha"
                           data-testid="input-password"
                           autoComplete="current-password"
+                          className="h-11 border-2 pr-12 transition-all duration-200 focus:border-medical-primary focus:shadow-medical"
                         />
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground hover:text-medical-primary transition-colors"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
+                            <EyeOff className="h-4 w-4" />
                           ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
+                            <Eye className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
@@ -140,22 +150,47 @@ export default function LoginForm() {
 
               <Button 
                 type="submit" 
-                className="w-full"
+                className="w-full h-12 bg-gradient-medical-primary text-white font-semibold hover:shadow-medical-hover transition-all duration-200 transform hover:scale-[1.02]"
                 disabled={isLoading}
                 data-testid="button-login"
               >
-                {isLoading ? "Entrando..." : "Entrar"}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    Entrando...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Entrar no Sistema
+                  </div>
+                )}
               </Button>
             </form>
           </Form>
 
-          <div className="border-t pt-4">
-            <p className="text-sm text-gray-600 font-semibold mb-2">Usuários de Demonstração:</p>
-            <div className="space-y-2 text-xs text-gray-500">
-              <div><strong>Administrador:</strong> admin / admin123</div>
-              <div><strong>Médico:</strong> medico / medico123</div>
-              <div><strong>Atendente:</strong> atendente / atendente123</div>
-              <div><strong>Controlador:</strong> controlador / controlador123</div>
+          <div className="border-t pt-6 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-semibold">
+              <div className="w-2 h-2 rounded-full bg-medical-secondary"></div>
+              Usuários de Demonstração
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2 rounded-lg bg-medical-primary/5 border border-medical-primary/20">
+                <div className="font-semibold text-medical-primary">Administrador</div>
+                <div className="text-muted-foreground">admin / admin123</div>
+              </div>
+              <div className="p-2 rounded-lg bg-medical-secondary/5 border border-medical-secondary/20">
+                <div className="font-semibold text-medical-secondary">Médico</div>
+                <div className="text-muted-foreground">medico / medico123</div>
+              </div>
+              <div className="p-2 rounded-lg bg-medical-accent/5 border border-medical-accent/20">
+                <div className="font-semibold text-medical-accent">Atendente</div>
+                <div className="text-muted-foreground">atendente / atendente123</div>
+              </div>
+              <div className="p-2 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                <div className="font-semibold text-purple-600">Controlador</div>
+                <div className="text-muted-foreground">controlador / controlador123</div>
+              </div>
             </div>
           </div>
         </CardContent>

@@ -39,7 +39,32 @@
   --font-sans: 'Inter', 'Roboto', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
-  --radius: 0.5rem;
+  --radius: 0.75rem;
+  
+  /* Medical color palette */
+  --medical-primary: 210 100% 45%;
+  --medical-primary-light: 210 100% 55%;
+  --medical-primary-dark: 210 100% 35%;
+  
+  /* Medical secondary - Health green */
+  --medical-secondary: 142 76% 36%;
+  --medical-secondary-light: 142 76% 46%;
+  
+  /* Medical accent - Trust blue */
+  --medical-accent: 200 90% 50%;
+  --medical-accent-light: 200 90% 60%;
+  
+  /* Medical gradients */
+  --gradient-medical-primary: linear-gradient(135deg, hsl(var(--medical-primary)), hsl(var(--medical-primary-light)));
+  --gradient-medical-hero: linear-gradient(135deg, hsl(var(--medical-primary)), hsl(var(--medical-accent)));
+  --gradient-medical-card: linear-gradient(145deg, hsl(210 25% 98%), hsl(210 15% 96%));
+  
+  /* Medical shadows */
+  --shadow-medical: 0 10px 30px -5px hsl(var(--medical-primary) / 0.15);
+  --shadow-medical-hover: 0 15px 40px -10px hsl(var(--medical-primary) / 0.25);
+  --shadow-card: 0 8px 25px -8px hsl(210 20% 20% / 0.15);
+  
+  /* Legacy colors for compatibility */
   --medical-blue: hsl(214 74% 41%);
   --health-green: hsl(137 63% 42%);
   --medical-bg: hsl(210 20% 97%);
@@ -68,6 +93,18 @@
   --border: hsl(210 5.2632% 14.9020%);
   --input: hsl(207.6923 27.6596% 18.4314%);
   --ring: hsl(214 74% 51%);
+  /* Medical color palette - Dark mode */
+  --medical-primary: 210 100% 55%;
+  --medical-primary-light: 210 100% 65%;
+  --medical-primary-dark: 210 100% 45%;
+  
+  --medical-secondary: 142 76% 46%;
+  --medical-secondary-light: 142 76% 56%;
+  
+  --medical-accent: 200 90% 60%;
+  --medical-accent-light: 200 90% 70%;
+  
+  /* Legacy colors for compatibility */
   --medical-blue: hsl(214 74% 51%);
   --health-green: hsl(137 63% 52%);
   --medical-bg: hsl(228 9.8039% 10%);

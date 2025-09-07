@@ -61,6 +61,15 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        medical: {
+          primary: "hsl(var(--medical-primary))",
+          "primary-light": "hsl(var(--medical-primary-light))",
+          "primary-dark": "hsl(var(--medical-primary-dark))",
+          secondary: "hsl(var(--medical-secondary))",
+          "secondary-light": "hsl(var(--medical-secondary-light))",
+          accent: "hsl(var(--medical-accent))",
+          "accent-light": "hsl(var(--medical-accent-light))",
+        },
         'medical-blue': "var(--medical-blue)",
         'health-green': "var(--health-green)",
         'medical-bg': "var(--medical-bg)",
@@ -95,6 +104,16 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      boxShadow: {
+        medical: "var(--shadow-medical)",
+        "medical-hover": "var(--shadow-medical-hover)",
+        card: "var(--shadow-card)",
+      },
+      backgroundImage: {
+        "gradient-medical-primary": "var(--gradient-medical-primary)",
+        "gradient-medical-hero": "var(--gradient-medical-hero)",
+        "gradient-medical-card": "var(--gradient-medical-card)",
       },
     },
   },
