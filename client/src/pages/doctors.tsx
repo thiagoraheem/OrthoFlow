@@ -23,7 +23,7 @@ export default function Doctors() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: doctors = [], isLoading } = useQuery<Doctor[]>({
-    queryKey: ["/api/doctors"],
+    queryKey: ["/api/doctors/"],
   });
 
   const filteredDoctors = doctors.filter((doctor: Doctor) =>

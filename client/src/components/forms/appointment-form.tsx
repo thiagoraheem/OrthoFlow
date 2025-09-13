@@ -35,19 +35,19 @@ export default function AppointmentForm() {
   const queryClient = useQueryClient();
 
   const { data: patients = [] } = useQuery<any[]>({
-    queryKey: ["/api/patients"],
+    queryKey: ["/api/patients/"],
   });
 
   const { data: doctors = [] } = useQuery<any[]>({
-    queryKey: ["/api/doctors"],
+    queryKey: ["/api/doctors/"],
   });
 
   const { data: rooms = [] } = useQuery<any[]>({
-    queryKey: ["/api/clinic-rooms"],
+    queryKey: ["/api/clinic-rooms/"],
   });
 
   const { data: appointmentTypes = [] } = useQuery<any[]>({
-    queryKey: ["/api/appointment-types"],
+    queryKey: ["/api/appointment-types/"],
   });
 
   const form = useForm({
@@ -66,30 +66,55 @@ export default function AppointmentForm() {
   });
 
   const createAppointmentMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/appointments", data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
+    mutationFn: (data: any) => {
+      console.log("🚀 Enviando requisição para:", "/api/appointments/");
+      console.log("📋 Dados da requisição:", data);
+      return apiRequest("POST", "/api/appointments/", data);
+    },
+    onSuccess: (response) => {
+      console.log("✅ Sucesso na criação:", response);
+      queryClient.invalidateQueries({ queryKey: ["/api/appointments/"] });
       toast({
         title: "Sucesso",
         description: "Consulta agendada com sucesso",
       });
       form.reset();
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("❌ Erro na criação:", error);
+      console.error("📄 Detalhes do erro:", error.message);
       toast({
         title: "Erro",
-        description: "Falha ao agendar consulta",
+        description: `Falha ao agendar consulta: ${error.message}`,
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: any) => {
-    // Remover roomId se estiver vazio ou for "none"
-    if (!data.roomId || data.roomId === "none") {
-      delete data.roomId;
+    console.log("🔍 Dados do formulário:", data);
+    console.log("🔑 Token no localStorage:", localStorage.getItem("orthocare_token"));
+    
+    // Converter camelCase para snake_case para o backend
+    const backendData = {
+      patient_id: data.patientId,
+      doctor_id: data.doctorId,
+      appointment_type_id: data.appointmentTypeId,
+      appointment_date: data.appointmentDate,
+      appointment_time: data.appointmentTime,
+      status: data.status || "scheduled",
+      reason: data.reason,
+      notes: data.notes,
+    };
+
+    // Adicionar roomId apenas se não estiver vazio ou "none"
+    if (data.roomId && data.roomId !== "none") {
+      backendData.clinic_room_id = data.roomId;
     }
-    createAppointmentMutation.mutate(data);
+
+    console.log("📤 Dados para o backend:", backendData);
+    
+    createAppointmentMutation.mutate(backendData);
   };
 
   return (
@@ -116,7 +141,7 @@ export default function AppointmentForm() {
                     <SelectContent>
                       {patients.map((patient: any) => (
                         <SelectItem key={patient.id} value={patient.id}>
-                          {patient.firstName} {patient.lastName} - Nasc: {patient.dateOfBirth}
+                          {patient.first_name} {patient.last_name} - Nasc: {patient.date_of_birth}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -141,7 +166,7 @@ export default function AppointmentForm() {
                     <SelectContent>
                       {doctors.map((doctor: any) => (
                         <SelectItem key={doctor.id} value={doctor.id}>
-                          Dr. {doctor.firstName} {doctor.lastName} - {doctor.specialty}
+                          Dr. {doctor.first_name} {doctor.last_name} - {doctor.specialty}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -207,7 +232,7 @@ export default function AppointmentForm() {
                     <SelectContent>
                       {appointmentTypes.map((type: any) => (
                         <SelectItem key={type.id} value={type.id}>
-                          {type.typeName}
+                          {type.type_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -234,7 +259,7 @@ export default function AppointmentForm() {
                     <SelectItem value="none">Não atribuir sala</SelectItem>
                     {rooms.filter((room: any) => room.isAvailable).map((room: any) => (
                       <SelectItem key={room.id} value={room.id}>
-                        Sala {room.roomNumber} - {room.roomType}
+                        Sala {room.room_number} - {room.room_type}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -272,6 +297,7 @@ export default function AppointmentForm() {
               className="bg-medical-blue hover:bg-blue-700"
               disabled={createAppointmentMutation.isPending}
               data-testid="button-schedule"
+              onClick={() => console.log("🖱️ Botão clicado!", form.getValues())}
             >
               {createAppointmentMutation.isPending ? "Agendando..." : "Agendar Consulta"}
             </Button>

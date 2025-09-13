@@ -36,19 +36,19 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
 
   const { data: appointments = [], isLoading: appointmentsLoading } = useQuery<AppointmentWithDetails[]>({
-    queryKey: ["/api/appointments"],
+    queryKey: ["/api/appointments/"],
   });
 
   const { data: doctors = [] } = useQuery<Doctor[]>({
-    queryKey: ["/api/doctors"],
+    queryKey: ["/api/doctors/"],
   });
 
   const { data: patients = [] } = useQuery<any[]>({
-    queryKey: ["/api/patients"],
+    queryKey: ["/api/patients/"],
   });
 
   const { data: rooms = [] } = useQuery<any[]>({
-    queryKey: ["/api/clinic-rooms"],
+    queryKey: ["/api/clinic-rooms/"],
   });
 
   // Filtrar consultas baseado no tipo de usuário e data
@@ -363,7 +363,7 @@ export default function Dashboard() {
                                         {appointment.appointmentTime}
                                       </span>
                                       <Badge variant="secondary" className="text-xs">
-                                        {appointment.appointmentType.typeName}
+                                        {appointment.appointmentType?.type_name || 'N/A'}
                                       </Badge>
                                     </div>
                                   </div>
@@ -430,7 +430,7 @@ export default function Dashboard() {
                                 {appointment.appointmentTime}
                               </span>
                               <Badge variant="secondary" className="text-xs">
-                                {appointment.appointmentType.typeName}
+                                {appointment.appointmentType?.type_name || 'N/A'}
                               </Badge>
                             </div>
                           </div>

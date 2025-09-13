@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 import uuid
 from datetime import datetime, date
@@ -29,7 +29,12 @@ async def get_appointments(
 ):
     """Listar agendamentos com filtros."""
     
-    query = db.query(Appointment)
+    query = db.query(Appointment).options(
+        joinedload(Appointment.patient),
+        joinedload(Appointment.doctor),
+        joinedload(Appointment.room),
+        joinedload(Appointment.appointment_type)
+    )
     
     # Aplicar filtros
     if date_filter:
@@ -55,7 +60,12 @@ async def get_appointment(
 ):
     """Obter agendamento por ID."""
     
-    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    appointment = db.query(Appointment).options(
+        joinedload(Appointment.patient),
+        joinedload(Appointment.doctor),
+        joinedload(Appointment.room),
+        joinedload(Appointment.appointment_type)
+    ).filter(Appointment.id == appointment_id).first()
     if not appointment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -114,33 +124,48 @@ async def create_appointment(
         )
     
     # Verificar conflito de horário para o médico
-    existing_appointment = db.query(Appointment).filter(
+    # Buscar todas as consultas do médico na mesma data
+    existing_appointments = db.query(Appointment).filter(
         Appointment.doctor_id == str(appointment_data.doctor_id),
         Appointment.appointment_date == appointment_data.appointment_date,
-        Appointment.appointment_time == appointment_data.appointment_time,
         Appointment.status.in_(["scheduled", "confirmed"])
-    ).first()
+    ).all()
     
-    if existing_appointment:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Doctor already has an appointment at this time"
-        )
+    # Verificar se há conflito de horário (considerando duração padrão de 30 minutos)
+    from datetime import datetime, timedelta
+    
+    new_start_time = datetime.strptime(appointment_data.appointment_time, "%H:%M")
+    new_end_time = new_start_time + timedelta(minutes=30)  # Duração padrão de 30 minutos
+    
+    for existing in existing_appointments:
+        existing_start_time = datetime.strptime(existing.appointment_time, "%H:%M")
+        existing_end_time = existing_start_time + timedelta(minutes=30)
+        
+        # Verificar sobreposição de horários
+        if (new_start_time < existing_end_time and new_end_time > existing_start_time):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Doctor already has an appointment from {existing.appointment_time} to {existing_end_time.strftime('%H:%M')} on this date"
+            )
     
     # Verificar conflito de horário para a sala (se fornecida)
     if appointment_data.room_id:
-        existing_room_appointment = db.query(Appointment).filter(
+        existing_room_appointments = db.query(Appointment).filter(
             Appointment.room_id == str(appointment_data.room_id),
             Appointment.appointment_date == appointment_data.appointment_date,
-            Appointment.appointment_time == appointment_data.appointment_time,
             Appointment.status.in_(["scheduled", "confirmed"])
-        ).first()
+        ).all()
         
-        if existing_room_appointment:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Room is already booked at this time"
-            )
+        for existing_room in existing_room_appointments:
+            existing_room_start_time = datetime.strptime(existing_room.appointment_time, "%H:%M")
+            existing_room_end_time = existing_room_start_time + timedelta(minutes=30)
+            
+            # Verificar sobreposição de horários para a sala
+            if (new_start_time < existing_room_end_time and new_end_time > existing_room_start_time):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Room is already booked from {existing_room.appointment_time} to {existing_room_end_time.strftime('%H:%M')} on this date"
+                )
     
     # Criar agendamento
     try:
@@ -182,19 +207,27 @@ async def update_appointment(
         appointment_date = update_data.get('appointment_date', appointment.appointment_date)
         appointment_time = update_data.get('appointment_time', appointment.appointment_time)
         
-        existing_appointment = db.query(Appointment).filter(
+        # Buscar todas as consultas do médico na mesma data (exceto a atual)
+        existing_appointments = db.query(Appointment).filter(
             Appointment.doctor_id == doctor_id,
             Appointment.appointment_date == appointment_date,
-            Appointment.appointment_time == appointment_time,
             Appointment.status.in_(["scheduled", "confirmed"]),
             Appointment.id != appointment_id
-        ).first()
+        ).all()
         
-        if existing_appointment:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Doctor already has an appointment at this time"
-            )
+        # Verificar sobreposição de horários
+        new_start_time = datetime.strptime(appointment_time, "%H:%M")
+        new_end_time = new_start_time + timedelta(minutes=30)
+        
+        for existing in existing_appointments:
+            existing_start_time = datetime.strptime(existing.appointment_time, "%H:%M")
+            existing_end_time = existing_start_time + timedelta(minutes=30)
+            
+            if (new_start_time < existing_end_time and new_end_time > existing_start_time):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Doctor already has an appointment from {existing.appointment_time} to {existing_end_time.strftime('%H:%M')} on this date"
+                )
     
     # Atualizar campos
     try:

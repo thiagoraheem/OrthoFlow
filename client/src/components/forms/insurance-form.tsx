@@ -61,9 +61,9 @@ export default function InsuranceForm() {
   });
 
   const createInsuranceMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/insurance-plans", data),
+    mutationFn: (data: any) => apiRequest("POST", "/api/insurance-plans/", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/insurance-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/insurance-plans/"] });
       toast({
         title: "Success",
         description: "Insurance plan added successfully",

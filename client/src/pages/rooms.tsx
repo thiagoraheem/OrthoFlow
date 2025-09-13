@@ -22,7 +22,7 @@ function Rooms() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: rooms = [], isLoading } = useQuery<ClinicRoom[]>({
-    queryKey: ["/api/clinic-rooms"],
+    queryKey: ["/api/clinic-rooms/"],
   });
 
   const filteredRooms = rooms.filter((room: ClinicRoom) =>

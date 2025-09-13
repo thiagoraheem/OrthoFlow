@@ -28,8 +28,8 @@ export default function Patients() {
   const [viewPatient, setViewPatient] = useState<PatientWithInsurance | null>(null);
   const [editPatient, setEditPatient] = useState<PatientWithInsurance | null>(null);
 
-  const { data: patients = [], isLoading } = useQuery<PatientWithInsurance[]>({
-    queryKey: ["/api/patients"],
+  const { data: patients = [], isLoading } = useQuery<Patient[]>({
+    queryKey: ["/api/patients/"],
   });
 
   const filteredPatients = patients.filter((patient: PatientWithInsurance) =>

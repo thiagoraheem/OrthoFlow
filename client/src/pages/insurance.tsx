@@ -22,11 +22,11 @@ export default function Insurance() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: insurancePlans = [], isLoading } = useQuery<InsurancePlan[]>({
-    queryKey: ["/api/insurance-plans"],
+    queryKey: ["/api/insurance-plans/"],
   });
 
-  const { data: patients = [] } = useQuery<PatientWithInsurance[]>({
-    queryKey: ["/api/patients"],
+  const { data: patients = [] } = useQuery<any[]>({
+    queryKey: ["/api/patients/"],
   });
 
   const filteredPlans = insurancePlans.filter((plan: InsurancePlan) =>

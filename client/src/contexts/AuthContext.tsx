@@ -44,7 +44,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
            id: userData.id,
            email: userData.email,
            name: userData.full_name,
-           email: userData.email,
            userType: userData.is_superuser ? "Administrador" : "Atendente",
            isActive: userData.is_active
          });

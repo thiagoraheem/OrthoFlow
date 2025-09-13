@@ -42,7 +42,7 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
   const queryClient = useQueryClient();
 
   const { data: insurancePlans = [] } = useQuery<any[]>({
-    queryKey: ["/api/insurance-plans"],
+    queryKey: ["/api/insurance-plans/"],
   });
 
   const form = useForm({
@@ -68,9 +68,9 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
 
 
   const createPatientMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/patients", data),
+    mutationFn: (data: any) => apiRequest("POST", "/api/patients/", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/patients/"] });
       toast({
         title: "Sucesso",
         description: "Paciente cadastrado com sucesso",

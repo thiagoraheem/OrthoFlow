@@ -37,7 +37,7 @@ export default function PatientEdit({ patient, onSuccess, onCancel }: PatientEdi
   const queryClient = useQueryClient();
 
   const { data: insurancePlans = [] } = useQuery<any[]>({
-    queryKey: ["/api/insurance-plans"],
+    queryKey: ["/api/insurance-plans/"],
   });
 
   const form = useForm({
@@ -90,7 +90,7 @@ export default function PatientEdit({ patient, onSuccess, onCancel }: PatientEdi
   const updatePatientMutation = useMutation({
     mutationFn: (data: any) => apiRequest("PUT", `/api/patients/${patient.id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/patients/"] });
       toast({
         title: "Sucesso",
         description: "Paciente atualizado com sucesso",

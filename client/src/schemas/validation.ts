@@ -65,13 +65,14 @@ export type ClinicRoomFormData = z.infer<typeof insertClinicRoomSchema>;
 
 // Appointment schemas
 export const insertAppointmentSchema = z.object({
-  patient_id: z.string().min(1, "Paciente é obrigatório"),
-  doctor_id: z.string().min(1, "Médico é obrigatório"),
-  clinic_room_id: z.string().min(1, "Sala é obrigatória"),
-  appointment_type_id: z.string().min(1, "Tipo de consulta é obrigatório"),
-  appointment_date: z.string().min(1, "Data é obrigatória"),
-  appointment_time: z.string().min(1, "Horário é obrigatório"),
-  status: z.string().optional().default("Agendado"),
+  patientId: z.string().min(1, "Paciente é obrigatório"),
+  doctorId: z.string().min(1, "Médico é obrigatório"),
+  roomId: z.string().optional(),
+  appointmentTypeId: z.string().min(1, "Tipo de consulta é obrigatório"),
+  appointmentDate: z.string().min(1, "Data é obrigatória"),
+  appointmentTime: z.string().min(1, "Horário é obrigatório"),
+  status: z.string().optional().default("scheduled"),
+  reason: z.string().optional(),
   notes: z.string().optional(),
 });
 

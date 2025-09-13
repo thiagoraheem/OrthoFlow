@@ -54,9 +54,9 @@ export default function DoctorForm() {
   });
 
   const createDoctorMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/doctors", data),
+    mutationFn: (data: any) => apiRequest("POST", "/api/doctors/", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/doctors/"] });
       toast({
         title: "Sucesso",
         description: "Médico cadastrado com sucesso",

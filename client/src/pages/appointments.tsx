@@ -26,17 +26,17 @@ export default function Appointments() {
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
   const { data: appointments = [], isLoading } = useQuery<AppointmentWithDetails[]>({
-    queryKey: ["/api/appointments"],
+    queryKey: ["/api/appointments/"],
   });
 
   const filteredAppointments = appointments.filter((appointment: AppointmentWithDetails) => {
     const matchesSearch = searchTerm === "" || 
-      appointment.patient.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.patient.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.doctor.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.doctor.lastName.toLowerCase().includes(searchTerm.toLowerCase());
+      appointment.patient.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appointment.patient.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appointment.doctor.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appointment.doctor.last_name.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesDate = !selectedDate || appointment.appointmentDate === selectedDate;
+    const matchesDate = !selectedDate || appointment.appointment_date === selectedDate;
     
     return matchesSearch && matchesDate;
   });
@@ -176,14 +176,14 @@ export default function Appointments() {
                             <Clock className="mr-2 h-4 w-4 text-gray-400" />
                             <div>
                               <p className="font-medium">
-                  {appointment.appointmentDate ? (
+                  {appointment.appointment_date ? (
                     (() => {
-                      const date = new Date(appointment.appointmentDate);
+                      const date = new Date(appointment.appointment_date);
                       return isNaN(date.getTime()) ? 'Data inválida' : format(date, "dd/MM/yyyy", { locale: ptBR });
                     })()
                   ) : 'Não informado'}
                 </p>
-                              <p className="text-sm text-gray-500">{appointment.appointmentTime}</p>
+                              <p className="text-sm text-gray-500">{appointment.appointment_time}</p>
                             </div>
                           </div>
                         </TableCell>
@@ -192,7 +192,7 @@ export default function Appointments() {
                             <User className="mr-2 h-4 w-4 text-gray-400" />
                             <div>
                               <p className="font-medium">
-                                {appointment.patient.firstName} {appointment.patient.lastName}
+                                {appointment.patient.first_name} {appointment.patient.last_name}
                               </p>
                               <p className="text-sm text-gray-500">{appointment.patient.phone}</p>
                             </div>
@@ -203,20 +203,20 @@ export default function Appointments() {
                             <Stethoscope className="mr-2 h-4 w-4 text-gray-400" />
                             <div>
                               <p className="font-medium">
-                                Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}
+                                Dr. {appointment.doctor.first_name} {appointment.doctor.last_name}
                               </p>
                               <p className="text-sm text-gray-500">{appointment.doctor.specialty}</p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">
-                            {appointment.appointmentType.typeName}
-                          </Badge>
-                        </TableCell>
+                        <Badge variant="outline">
+                          {appointment.appointmentType?.type_name || 'N/A'}
+                        </Badge>
+                      </TableCell>
                         <TableCell>
                           {appointment.room ? (
-                            <span>Sala {appointment.room.roomNumber}</span>
+                            <span>Sala {appointment.room.room_number}</span>
                           ) : (
                             <span className="text-gray-400">Não atribuída</span>
                           )}
