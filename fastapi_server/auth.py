@@ -6,10 +6,12 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 import os
+import secrets
+import hashlib
 from dotenv import load_dotenv
 
 from database import get_db
-from models import User
+from models import User, PasswordResetToken
 from schemas import User as UserSchema
 
 load_dotenv()
@@ -112,3 +114,71 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+# Funções de recuperação de senha
+def generate_reset_token() -> str:
+    """Gera um token seguro para recuperação de senha."""
+    return secrets.token_urlsafe(32)
+
+def hash_token(token: str) -> str:
+    """Gera hash do token para armazenamento seguro."""
+    return hashlib.sha256(token.encode()).hexdigest()
+
+def create_password_reset_token(db: Session, user_id: str) -> str:
+    """Cria um token de recuperação de senha para o usuário."""
+    # Invalidar tokens existentes
+    db.query(PasswordResetToken).filter(
+        PasswordResetToken.user_id == user_id,
+        PasswordResetToken.used == False,
+        PasswordResetToken.expires_at > datetime.utcnow()
+    ).update({"used": True})
+    
+    # Gerar novo token
+    token = generate_reset_token()
+    token_hash = hash_token(token)
+    
+    # Criar registro no banco
+    reset_token = PasswordResetToken(
+        user_id=user_id,
+        token_hash=token_hash,
+        expires_at=datetime.utcnow() + timedelta(hours=1),  # Expira em 1 hora
+        used=False
+    )
+    
+    db.add(reset_token)
+    db.commit()
+    
+    return token
+
+def validate_reset_token(db: Session, token: str) -> Optional[PasswordResetToken]:
+    """Valida um token de recuperação de senha."""
+    token_hash = hash_token(token)
+    
+    reset_token = db.query(PasswordResetToken).filter(
+        PasswordResetToken.token_hash == token_hash,
+        PasswordResetToken.used == False,
+        PasswordResetToken.expires_at > datetime.utcnow()
+    ).first()
+    
+    return reset_token
+
+def use_reset_token(db: Session, token: str) -> bool:
+    """Marca um token de recuperação como usado."""
+    reset_token = validate_reset_token(db, token)
+    if not reset_token:
+        return False
+    
+    reset_token.used = True
+    db.commit()
+    return True
+
+def update_user_password(db: Session, user_id: str, new_password: str) -> bool:
+    """Atualiza a senha do usuário."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return False
+    
+    user.hashed_password = get_password_hash(new_password)
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    return True

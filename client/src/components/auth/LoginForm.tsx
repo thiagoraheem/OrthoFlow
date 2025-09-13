@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Stethoscope, Eye, EyeOff, Shield } from "lucide-react";
+import { Link } from "wouter";
 import orthopedicBackground from "@/assets/orthopedic-background.jpg";
 
 export default function LoginForm() {
@@ -148,24 +149,34 @@ export default function LoginForm() {
                 )}
               />
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-gradient-medical-primary text-white font-semibold hover:shadow-medical-hover transition-all duration-200 transform hover:scale-[1.02]"
-                disabled={isLoading}
-                data-testid="button-login"
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                    Entrando...
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Entrar no Sistema
-                  </div>
-                )}
-              </Button>
+              <div className="space-y-3">
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 bg-gradient-medical-primary text-white font-semibold hover:shadow-medical-hover transition-all duration-200 transform hover:scale-[1.02]"
+                  disabled={isLoading}
+                  data-testid="button-login"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Entrando...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      Entrar no Sistema
+                    </div>
+                  )}
+                </Button>
+                
+                <div className="text-center">
+                  <Link href="/forgot-password">
+                    <Button variant="link" className="text-medical-primary hover:text-medical-primary/80 font-medium">
+                      Esqueci minha senha
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </form>
           </Form>
 

@@ -281,3 +281,41 @@ class Appointment(AppointmentBase):
     
     class Config:
         from_attributes = True
+
+# Schemas de recuperação de senha
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+    success: bool
+
+class ValidateResetTokenRequest(BaseModel):
+    token: str
+
+class ValidateResetTokenResponse(BaseModel):
+    valid: bool
+    message: str
+    email: Optional[str] = None
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+    
+    @validator('new_password')
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError('A senha deve ter pelo menos 8 caracteres')
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('A senha deve conter pelo menos uma letra maiúscula')
+        if not re.search(r'[a-z]', v):
+            raise ValueError('A senha deve conter pelo menos uma letra minúscula')
+        if not re.search(r'\d', v):
+            raise ValueError('A senha deve conter pelo menos um número')
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', v):
+            raise ValueError('A senha deve conter pelo menos um caractere especial')
+        return v
+
+class ResetPasswordResponse(BaseModel):
+    message: str
+    success: bool

@@ -1,18 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
-from datetime import timedelta
-
 from database import get_db
-from schemas import UserCreate, UserLogin, Token, User as UserSchema
-from auth import (
-    authenticate_user,
-    create_access_token,
-    get_user_by_email,
-    create_user,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    get_current_active_user
+from schemas import (
+    UserCreate, UserLogin, Token, User as UserSchema,
+    ForgotPasswordRequest, ForgotPasswordResponse,
+    ValidateResetTokenRequest, ValidateResetTokenResponse,
+    ResetPasswordRequest, ResetPasswordResponse
 )
+from auth import (
+    authenticate_user, create_user, get_current_user, get_current_active_user, create_access_token,
+    get_user_by_email, create_password_reset_token, validate_reset_token,
+    use_reset_token, update_user_password, ACCESS_TOKEN_EXPIRE_MINUTES
+)
+from datetime import timedelta
+from models import User
+from email_service import email_service
 
 router = APIRouter()
 security = HTTPBearer()
@@ -107,3 +110,119 @@ async def refresh_token(current_user: UserSchema = Depends(get_current_active_us
         "token_type": "bearer",
         "user": current_user
     }
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse)
+async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """Endpoint para solicitar recuperação de senha."""
+    
+    # Verificar se usuário existe
+    user = get_user_by_email(db, email=request.email)
+    if not user:
+        # Por segurança, sempre retornar sucesso mesmo se email não existir
+        return ForgotPasswordResponse(
+            message="Se o email estiver cadastrado, você receberá um link de recuperação.",
+            success=True
+        )
+    
+    # Verificar se usuário está ativo
+    if not user.is_active:
+        return ForgotPasswordResponse(
+            message="Se o email estiver cadastrado, você receberá um link de recuperação.",
+            success=True
+        )
+    
+    try:
+        # Criar token de recuperação
+        reset_token = create_password_reset_token(db, str(user.id))
+        
+        # Enviar email com o token
+        try:
+            email_sent = email_service.send_password_reset_email(
+                to_email=user.email,
+                reset_token=reset_token,
+                user_name=user.full_name
+            )
+            
+            if email_sent:
+                print(f"Email de recuperação enviado para {request.email}")
+            else:
+                print(f"Falha ao enviar email para {request.email}. Token: {reset_token}")
+                
+        except Exception as e:
+            print(f"Erro ao enviar email: {e}. Token: {reset_token}")
+        
+        return ForgotPasswordResponse(
+            message="Se o email estiver cadastrado, você receberá um link de recuperação.",
+            success=True
+        )
+    except Exception as e:
+        print(f"Error creating reset token: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erro interno do servidor"
+        )
+
+@router.post("/validate-reset-token", response_model=ValidateResetTokenResponse)
+async def validate_reset_token_endpoint(request: ValidateResetTokenRequest, db: Session = Depends(get_db)):
+    """Endpoint para validar token de recuperação de senha."""
+    
+    # Validar token
+    reset_token = validate_reset_token(db, token=request.token)
+    
+    if not reset_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token inválido ou expirado"
+        )
+    
+    # Buscar usuário
+    user = db.query(User).filter(User.id == reset_token.user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    
+    return ValidateResetTokenResponse(
+        valid=True,
+        message="Token válido",
+        email=user.email
+    )
+
+@router.post("/reset-password", response_model=ResetPasswordResponse)
+async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Endpoint para redefinir senha usando token de recuperação."""
+    
+    # Validar token
+    reset_token = validate_reset_token(db, token=request.token)
+    
+    if not reset_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token inválido ou expirado"
+        )
+    
+    # Buscar usuário
+    user = db.query(User).filter(User.id == reset_token.user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    
+    # Atualizar senha
+    success = update_user_password(db, str(user.id), request.new_password)
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erro ao atualizar senha"
+        )
+    
+    # Marcar token como usado
+    use_reset_token(db, request.token)
+    
+    return ResetPasswordResponse(
+        message="Senha redefinida com sucesso",
+        success=True
+    )

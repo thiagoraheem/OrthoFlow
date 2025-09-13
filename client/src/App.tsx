@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import LoginForm from "@/components/auth/LoginForm";
+import ForgotPassword from "@/pages/forgot-password";
+import ResetPassword from "@/pages/reset-password";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Appointments from "@/pages/appointments";
@@ -88,7 +90,13 @@ function Router() {
   }
 
   if (!user) {
-    return <LoginForm />;
+    return (
+      <Switch>
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password/:token" component={ResetPassword} />
+        <Route component={LoginForm} />
+      </Switch>
+    );
   }
 
   return <AuthenticatedApp />;
