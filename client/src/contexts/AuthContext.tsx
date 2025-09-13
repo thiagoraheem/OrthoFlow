@@ -12,7 +12,7 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // URL base da API FastAPI
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = `http://localhost:${import.meta.env.VITE_BACKEND_PORT || 5901}/api`;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
