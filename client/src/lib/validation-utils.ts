@@ -110,7 +110,7 @@ export const validateBirthDate = (date: string): { isValid: boolean; message?: s
     return { isValid: false, message: "Data de nascimento é obrigatória" };
   }
   
-  const birthDate = new Date(date);
+  const birthDate = new Date(date + "T00:00:00");
   const today = new Date();
   
   if (isNaN(birthDate.getTime())) {

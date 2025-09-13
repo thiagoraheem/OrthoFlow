@@ -133,7 +133,7 @@ export default function Patients() {
                             <Calendar className="mr-2 h-4 w-4 text-gray-400" />
                             {patient.date_of_birth ? (
                               (() => {
-                                const date = new Date(patient.date_of_birth);
+                                const date = new Date(patient.date_of_birth + "T00:00:00");
                                 return isNaN(date.getTime()) ? 'Data inválida' : format(date, "dd/MM/yyyy", { locale: ptBR });
                               })()
                             ) : 'Não informado'}

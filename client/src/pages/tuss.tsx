@@ -97,7 +97,7 @@ export default function TussPage() {
             <div className="text-2xl font-bold text-foreground" data-testid="text-last-import">
               {isLoadingStats ? '...' : 
                tussStats?.lastImport ? 
-                 new Date(tussStats.lastImport).toLocaleDateString('pt-BR') : 
+                 new Date(tussStats.lastImport + "T00:00:00").toLocaleDateString('pt-BR') : 
                  'Nunca'
               }
             </div>

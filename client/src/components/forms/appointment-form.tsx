@@ -91,30 +91,30 @@ export default function AppointmentForm() {
     },
   });
 
-  const onSubmit = (data: any) => {
-    console.log("🔍 Dados do formulário:", data);
-    console.log("🔑 Token no localStorage:", localStorage.getItem("orthocare_token"));
-    
-    // Converter camelCase para snake_case para o backend
-    const backendData = {
-      patient_id: data.patientId,
-      doctor_id: data.doctorId,
-      appointment_type_id: data.appointmentTypeId,
-      appointment_date: data.appointmentDate,
-      appointment_time: data.appointmentTime,
-      status: data.status || "scheduled",
-      reason: data.reason,
-      notes: data.notes,
-    };
+  const onSubmit = async (data: z.infer<typeof insertAppointmentSchema>) => {
+    try {
+      const appointmentData = {
+        patient_id: data.patientId,
+        doctor_id: data.doctorId,
+        appointment_date: data.appointmentDate,
+        appointment_time: data.appointmentTime,
+        appointment_type_id: data.appointmentTypeId,
+        clinic_room_id: data.clinicRoomId,
+        reason: data.reason,
+        status: "scheduled",
+      };
 
-    // Adicionar roomId apenas se não estiver vazio ou "none"
-    if (data.roomId && data.roomId !== "none") {
-      backendData.clinic_room_id = data.roomId;
+      // Adicionar roomId apenas se não estiver vazio ou "none"
+      if (data.roomId && data.roomId !== "none") {
+        appointmentData.clinic_room_id = data.roomId;
+      }
+
+      console.log("📤 Dados para o backend:", appointmentData);
+      
+      createAppointmentMutation.mutate(appointmentData);
+    } catch (error) {
+      console.error("Erro ao criar consulta:", error);
     }
-
-    console.log("📤 Dados para o backend:", backendData);
-    
-    createAppointmentMutation.mutate(backendData);
   };
 
   return (

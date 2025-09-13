@@ -64,19 +64,19 @@ export default function Dashboard() {
     const currentDateStr = format(currentDate, "yyyy-MM-dd");
     
     if (viewMode === "day") {
-      filtered = filtered.filter(apt => apt.appointmentDate === currentDateStr);
+      filtered = filtered.filter(apt => apt.appointment_date === currentDateStr);
     } else if (viewMode === "week") {
       const weekStart = startOfWeek(currentDate, { locale: ptBR });
       const weekEnd = endOfWeek(currentDate, { locale: ptBR });
       filtered = filtered.filter(apt => {
-        const aptDate = new Date(apt.appointmentDate);
+        const aptDate = new Date(apt.appointment_date);
         return aptDate >= weekStart && aptDate <= weekEnd;
       });
     } else if (viewMode === "month") {
       const monthStart = startOfMonth(currentDate);
       const monthEnd = endOfMonth(currentDate);
       filtered = filtered.filter(apt => {
-        const aptDate = new Date(apt.appointmentDate);
+        const aptDate = new Date(apt.appointment_date);
         return aptDate >= monthStart && aptDate <= monthEnd;
       });
     }
@@ -354,7 +354,7 @@ export default function Dashboard() {
                                       <span className="text-sm font-medium">
                                         {appointment.appointmentDate ? (
                   (() => {
-                    const date = new Date(appointment.appointmentDate);
+                    const date = new Date(appointment.appointmentDate + "T00:00:00");
                     return isNaN(date.getTime()) ? '--/--' : format(date, "dd/MM");
                   })()
                 ) : '--/--'}
@@ -419,9 +419,9 @@ export default function Dashboard() {
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                             <div className="flex items-center space-x-3">
                               <span className="text-sm font-medium">
-                                {appointment.appointmentDate ? (
+                                {appointment.appointment_date ? (
                   (() => {
-                    const date = new Date(appointment.appointmentDate);
+                    const date = new Date(appointment.appointment_date);
                     return isNaN(date.getTime()) ? '--/--' : format(date, "dd/MM");
                   })()
                 ) : '--/--'}
@@ -435,20 +435,20 @@ export default function Dashboard() {
                             </div>
                           </div>
                           <h4 className="font-semibold text-medical-text mt-1">
-                            {appointment.patient.firstName} {appointment.patient.lastName}
+                            {appointment.patient.first_name} {appointment.patient.last_name}
                           </h4>
                           <p className="text-sm text-gray-500">{appointment.reason}</p>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-600 mt-1">
                             {user?.userType !== "Médico" && (
                               <div className="flex items-center">
                                 <Stethoscope className="inline mr-1 h-3 w-3" />
-                                Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}
+                                Dr. {appointment.doctor.first_name} {appointment.doctor.last_name}
                               </div>
                             )}
                             {appointment.room && (
                               <div className="flex items-center">
                                 <DoorOpen className="inline mr-1 h-3 w-3" />
-                                Sala {appointment.room.roomNumber}
+                                Sala {appointment.room.room_number}
                               </div>
                             )}
                           </div>

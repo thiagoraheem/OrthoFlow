@@ -178,7 +178,7 @@ export default function Appointments() {
                               <p className="font-medium">
                   {appointment.appointment_date ? (
                     (() => {
-                      const date = new Date(appointment.appointment_date);
+                      const date = new Date(appointment.appointment_date + "T00:00:00");
                       return isNaN(date.getTime()) ? 'Data inválida' : format(date, "dd/MM/yyyy", { locale: ptBR });
                     })()
                   ) : 'Não informado'}

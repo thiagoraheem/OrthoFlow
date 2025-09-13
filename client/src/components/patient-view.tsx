@@ -13,7 +13,7 @@ interface PatientViewProps {
 export default function PatientView({ patient }: PatientViewProps) {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "Não informado";
-    const date = new Date(dateString);
+    const date = new Date(dateString + "T00:00:00");
     return isNaN(date.getTime()) ? "Data inválida" : format(date, "dd/MM/yyyy", { locale: ptBR });
   };
 
