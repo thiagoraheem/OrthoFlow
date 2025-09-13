@@ -1,5 +1,8 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// Configuração centralizada da URL base da API
+const API_BASE_URL = `http://localhost:${import.meta.env.VITE_BACKEND_PORT || 5901}`
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -23,7 +26,7 @@ export async function apiRequest(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const baseUrl = url.startsWith('http') ? url : `http://localhost:8000${url}`;
+  const baseUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
   const fullUrl = baseUrl;
   const res = await fetch(fullUrl, {
     method,
@@ -50,7 +53,7 @@ export const getQueryFn: <T>(options: {
     }
 
     const urlPath = queryKey.join("/");
-    const url = `http://localhost:8000${urlPath}${urlPath.endsWith('/') ? '' : '/'}`;
+    const url = `${API_BASE_URL}${urlPath}${urlPath.endsWith('/') ? '' : '/'}`;
     const res = await fetch(url, {
       headers,
       credentials: "include",

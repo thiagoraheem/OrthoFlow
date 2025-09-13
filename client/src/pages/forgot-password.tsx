@@ -39,7 +39,8 @@ export default function ForgotPassword() {
   const onSubmit = async (data: ForgotPasswordData) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5901/api/auth/forgot-password', {
+      const apiBaseUrl = `http://localhost:${import.meta.env.VITE_BACKEND_PORT || 5901}`;
+      const response = await fetch(`${apiBaseUrl}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

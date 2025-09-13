@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ValidatedInput } from "@/components/ui/validated-input";
-import { ValidatedTextarea } from "@/components/ui/validated-textarea";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,14 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, Phone, Mail, MapPin, Heart, FileText, CreditCard, AlertTriangle } from "lucide-react";
 import {
   formatCPF,
-  formatPhone,
-  validateCPF,
-  validatePhone,
-  validateEmail,
-  validateBirthDate,
-  validateName,
-  validateAddress,
-  validateOptionalText
+  formatPhone
 } from "@/lib/validation-utils";
 
 interface PatientFormProps {
@@ -49,8 +40,6 @@ interface PatientFormProps {
 export default function PatientForm({ onCancel }: PatientFormProps = {}) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const { data: insurancePlans = [] } = useQuery<any[]>({
     queryKey: ["/api/insurance-plans"],
@@ -59,77 +48,24 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
   const form = useForm({
     resolver: zodResolver(insertPatientSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      first_name: "",
+      last_name: "",
       cpf: "",
-      dateOfBirth: "",
+      date_of_birth: "",
       phone: "",
       email: "",
       address: "",
-      emergencyContact: "",
-      emergencyPhone: "",
-      medicalHistory: "",
+      emergency_contact: "",
+      emergency_phone: "",
+      medical_history: "",
       allergies: "",
-      insurancePlanId: "none",
-      insuranceNumber: "",
+      insurance_plan_id: "none",
+      insurance_number: "",
     },
     mode: "onChange",
   });
 
-  // Validação em tempo real
-  const validateForm = () => {
-    const values = form.getValues();
-    const errors: Record<string, string> = {};
-    
-    // Validações obrigatórias
-    const firstNameValidation = validateName(values.firstName, "Nome");
-    if (!firstNameValidation.isValid) errors.firstName = firstNameValidation.message!;
-    
-    const lastNameValidation = validateName(values.lastName, "Sobrenome");
-    if (!lastNameValidation.isValid) errors.lastName = lastNameValidation.message!;
-    
-    const cpfValidation = validateCPF(values.cpf);
-    if (!cpfValidation.isValid) errors.cpf = cpfValidation.message!;
-    
-    const birthDateValidation = validateBirthDate(values.dateOfBirth);
-    if (!birthDateValidation.isValid) errors.dateOfBirth = birthDateValidation.message!;
-    
-    const phoneValidation = validatePhone(values.phone);
-    if (!phoneValidation.isValid) errors.phone = phoneValidation.message!;
-    
-    const addressValidation = validateAddress(values.address);
-    if (!addressValidation.isValid) errors.address = addressValidation.message!;
-    
-    const emergencyContactValidation = validateName(values.emergencyContact, "Contato de emergência");
-    if (!emergencyContactValidation.isValid) errors.emergencyContact = emergencyContactValidation.message!;
-    
-    const emergencyPhoneValidation = validatePhone(values.emergencyPhone);
-    if (!emergencyPhoneValidation.isValid) errors.emergencyPhone = emergencyPhoneValidation.message!;
-    
-    // Validações opcionais
-    if (values.email) {
-      const emailValidation = validateEmail(values.email);
-      if (!emailValidation.isValid) errors.email = emailValidation.message!;
-    }
-    
-    const medicalHistoryValidation = validateOptionalText(values.medicalHistory, 1000, "Histórico médico");
-    if (!medicalHistoryValidation.isValid) errors.medicalHistory = medicalHistoryValidation.message!;
-    
-    const allergiesValidation = validateOptionalText(values.allergies, 500, "Alergias");
-    if (!allergiesValidation.isValid) errors.allergies = allergiesValidation.message!;
-    
-    const insuranceNumberValidation = validateOptionalText(values.insuranceNumber, 50, "Número do convênio");
-    if (!insuranceNumberValidation.isValid) errors.insuranceNumber = insuranceNumberValidation.message!;
-    
-    setValidationErrors(errors);
-    setIsFormValid(Object.keys(errors).length === 0);
-  };
 
-  // Observar mudanças no formulário
-  const watchedValues = form.watch();
-  useEffect(() => {
-    validateForm();
-  }, [watchedValues]);
 
   const createPatientMutation = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/patients", data),
@@ -151,29 +87,23 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
   });
 
   const onSubmit = (data: any) => {
-    // Mapear campos do frontend (camelCase) para backend (snake_case)
-    const mappedData = {
-      first_name: data.firstName,
-      last_name: data.lastName,
-      cpf: data.cpf && data.cpf.trim() !== "" ? data.cpf : null, // CPF apenas se fornecido
-      date_of_birth: data.dateOfBirth,
-      phone: data.phone,
+    // Limpar dados vazios e ajustar valores especiais
+    const cleanedData = {
+      ...data,
+      cpf: data.cpf && data.cpf.trim() !== "" ? data.cpf : null,
       email: data.email || null,
-      address: data.address,
-      emergency_contact: data.emergencyContact,
-      emergency_phone: data.emergencyPhone,
-      medical_history: data.medicalHistory || null,
+      medical_history: data.medical_history || null,
       allergies: data.allergies || null,
-      insurance_plan_id: data.insurancePlanId === "none" ? null : data.insurancePlanId || null,
-      insurance_number: data.insuranceNumber || null,
+      insurance_plan_id: data.insurance_plan_id === "none" ? null : data.insurance_plan_id || null,
+      insurance_number: data.insurance_number || null,
     };
     
     // Remover campos vazios
-    const cleanedData = Object.fromEntries(
-      Object.entries(mappedData).map(([key, value]) => [key, value === "" ? null : value])
+    const finalData = Object.fromEntries(
+      Object.entries(cleanedData).map(([key, value]) => [key, value === "" ? null : value])
     );
     
-    createPatientMutation.mutate(cleanedData);
+    createPatientMutation.mutate(finalData);
   };
 
   return (
@@ -204,19 +134,16 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="firstName"
+                  name="first_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1">
                         Nome <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           placeholder="Digite o nome"
-                          required
-                          error={validationErrors.firstName}
-                          onValidate={(value) => validateName(value, "Nome")}
                         />
                       </FormControl>
                       <FormMessage />
@@ -226,19 +153,16 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
 
                 <FormField
                   control={form.control}
-                  name="lastName"
+                  name="last_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1">
                         Sobrenome <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           placeholder="Digite o sobrenome"
-                          required
-                          error={validationErrors.lastName}
-                          onValidate={(value) => validateName(value, "Sobrenome")}
                         />
                       </FormControl>
                       <FormMessage />
@@ -257,13 +181,13 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
                         CPF <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           placeholder="000.000.000-00"
-                          required
-                          error={validationErrors.cpf}
-                          onValidate={validateCPF}
-                          formatValue={formatCPF}
+                          onChange={(e) => {
+                            const formatted = formatCPF(e.target.value);
+                            field.onChange(formatted);
+                          }}
                           maxLength={14}
                         />
                       </FormControl>
@@ -274,19 +198,17 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
 
                 <FormField
                   control={form.control}
-                  name="dateOfBirth"
+                  name="date_of_birth"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1">
                         Data de Nascimento <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           type="date"
-                          required
-                          error={validationErrors.dateOfBirth}
-                          onValidate={validateBirthDate}
+                          max={new Date().toISOString().split('T')[0]}
                         />
                       </FormControl>
                       <FormMessage />
@@ -317,13 +239,13 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
                         Telefone <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           placeholder="(00) 00000-0000"
-                          required
-                          error={validationErrors.phone}
-                          onValidate={validatePhone}
-                          formatValue={formatPhone}
+                          onChange={(e) => {
+                            const formatted = formatPhone(e.target.value);
+                            field.onChange(formatted);
+                          }}
                           maxLength={15}
                         />
                       </FormControl>
@@ -342,12 +264,10 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
                         Email
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           type="email"
                           placeholder="email@exemplo.com"
-                          error={validationErrors.email}
-                          onValidate={validateEmail}
                         />
                       </FormControl>
                       <FormMessage />
@@ -366,12 +286,9 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
                       Endereço <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
-                      <ValidatedInput
+                      <Input
                         {...field}
                         placeholder="Digite o endereço completo"
-                        required
-                        error={validationErrors.address}
-                        onValidate={validateAddress}
                       />
                     </FormControl>
                     <FormMessage />
@@ -394,19 +311,16 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="emergencyContact"
+                  name="emergency_contact"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1">
                         Nome do Contato <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           placeholder="Nome do contato de emergência"
-                          required
-                          error={validationErrors.emergencyContact}
-                          onValidate={(value) => validateName(value, "Contato de emergência")}
                         />
                       </FormControl>
                       <FormMessage />
@@ -416,7 +330,7 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
 
                 <FormField
                   control={form.control}
-                  name="emergencyPhone"
+                  name="emergency_phone"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-1">
@@ -424,13 +338,13 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
                         Telefone de Emergência <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           placeholder="(00) 00000-0000"
-                          required
-                          error={validationErrors.emergencyPhone}
-                          onValidate={validatePhone}
-                          formatValue={formatPhone}
+                          onChange={(e) => {
+                            const formatted = formatPhone(e.target.value);
+                            field.onChange(formatted);
+                          }}
                           maxLength={15}
                         />
                       </FormControl>
@@ -454,7 +368,7 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="medicalHistory"
+                name="medical_history"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-1">
@@ -462,12 +376,10 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
                       Histórico Médico
                     </FormLabel>
                     <FormControl>
-                      <ValidatedTextarea
+                      <Textarea
                         {...field}
                         placeholder="Descreva o histórico médico do paciente (opcional)"
                         className="min-h-[100px]"
-                        error={validationErrors.medicalHistory}
-                        onValidate={(value) => validateOptionalText(value, 1000, "Histórico médico")}
                         maxLength={1000}
                       />
                     </FormControl>
@@ -486,12 +398,10 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
                       Alergias
                     </FormLabel>
                     <FormControl>
-                      <ValidatedTextarea
+                      <Textarea
                         {...field}
                         placeholder="Liste as alergias conhecidas (opcional)"
                         className="min-h-[80px]"
-                        error={validationErrors.allergies}
-                        onValidate={(value) => validateOptionalText(value, 500, "Alergias")}
                         maxLength={500}
                       />
                     </FormControl>
@@ -515,7 +425,7 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="insurancePlanId"
+                  name="insurance_plan_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Plano de Saúde</FormLabel>
@@ -543,16 +453,14 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
 
                 <FormField
                   control={form.control}
-                  name="insuranceNumber"
+                  name="insurance_number"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Número do Convênio</FormLabel>
                       <FormControl>
-                        <ValidatedInput
+                        <Input
                           {...field}
                           placeholder="Número da carteirinha"
-                          error={validationErrors.insuranceNumber}
-                          onValidate={(value) => validateOptionalText(value, 50, "Número do convênio")}
                           maxLength={50}
                         />
                       </FormControl>
@@ -569,7 +477,7 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
           {/* Botões de Ação */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              {isFormValid ? (
+              {form.formState.isValid ? (
                 <div className="flex items-center gap-2 text-green-600">
                   <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                   Formulário válido
@@ -577,7 +485,7 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
               ) : (
                 <div className="flex items-center gap-2 text-red-600">
                   <div className="h-2 w-2 bg-red-500 rounded-full"></div>
-                  {Object.keys(validationErrors).length} erro(s) encontrado(s)
+                  {Object.keys(form.formState.errors).length} erro(s) encontrado(s)
                 </div>
               )}
             </div>
@@ -588,7 +496,7 @@ export default function PatientForm({ onCancel }: PatientFormProps = {}) {
               </Button>
               <Button
                 type="submit"
-                disabled={createPatientMutation.isPending || !isFormValid}
+                disabled={createPatientMutation.isPending || !form.formState.isValid}
                 size="lg"
                 className="min-w-[120px]"
               >

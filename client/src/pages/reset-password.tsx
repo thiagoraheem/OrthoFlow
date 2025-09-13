@@ -64,7 +64,8 @@ export default function ResetPassword() {
 
   const validateToken = async (tokenToValidate: string) => {
     try {
-      const response = await fetch('http://localhost:5901/api/auth/validate-reset-token', {
+      const apiBaseUrl = `http://localhost:${import.meta.env.VITE_BACKEND_PORT || 5901}`;
+      const response = await fetch(`${apiBaseUrl}/api/auth/validate-reset-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +99,8 @@ export default function ResetPassword() {
     
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5901/api/auth/reset-password', {
+      const apiBaseUrl = `http://localhost:${import.meta.env.VITE_BACKEND_PORT || 5901}`;
+      const response = await fetch(`${apiBaseUrl}/api/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
