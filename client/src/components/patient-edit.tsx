@@ -70,19 +70,19 @@ export default function PatientEdit({ patient, onSuccess, onCancel }: PatientEdi
       };
 
       form.reset({
-        firstName: patient.firstName || "",
-        lastName: patient.lastName || "",
+        firstName: patient.first_name || "",
+        lastName: patient.last_name || "",
         cpf: patient.cpf || "",
-        dateOfBirth: formatDate(patient.dateOfBirth),
+        dateOfBirth: formatDate(patient.date_of_birth),
         phone: patient.phone || "",
         email: patient.email || "",
         address: patient.address || "",
-        emergencyContact: patient.emergencyContact || "",
-        emergencyPhone: patient.emergencyPhone || "",
-        medicalHistory: patient.medicalHistory || "",
+        emergencyContact: patient.emergency_contact || "",
+        emergencyPhone: patient.emergency_phone || "",
+        medicalHistory: patient.medical_history || "",
         allergies: patient.allergies || "",
-        insurancePlanId: patient.insurancePlanId || "none",
-        insuranceNumber: patient.insuranceNumber || "",
+        insurancePlanId: patient.insurance_plan_id || "none",
+        insuranceNumber: patient.insurance_number || "",
       });
     }
   }, [patient, form]);

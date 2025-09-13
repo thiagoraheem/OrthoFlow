@@ -34,8 +34,8 @@ export default function Patients() {
 
   const filteredPatients = patients.filter((patient: PatientWithInsurance) =>
     searchTerm === "" ||
-    patient.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    patient.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    patient.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.phone.includes(searchTerm) ||
     (patient.email && patient.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -123,7 +123,7 @@ export default function Patients() {
                         <TableCell>
                           <div>
                             <p className="font-medium">
-                              {patient.firstName} {patient.lastName}
+                              {patient.first_name} {patient.last_name}
                             </p>
                             <p className="text-sm text-gray-500">ID: {patient.id.slice(0, 8)}</p>
                           </div>
@@ -131,9 +131,9 @@ export default function Patients() {
                         <TableCell>
                           <div className="flex items-center">
                             <Calendar className="mr-2 h-4 w-4 text-gray-400" />
-                            {patient.dateOfBirth ? (
+                            {patient.date_of_birth ? (
                               (() => {
-                                const date = new Date(patient.dateOfBirth);
+                                const date = new Date(patient.date_of_birth);
                                 return isNaN(date.getTime()) ? 'Data inválida' : format(date, "dd/MM/yyyy", { locale: ptBR });
                               })()
                             ) : 'Não informado'}
@@ -174,8 +174,8 @@ export default function Patients() {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="text-sm font-medium">{patient.emergencyContact}</p>
-                            <p className="text-xs text-gray-500">{patient.emergencyPhone}</p>
+                            <p className="text-sm font-medium">{patient.emergency_contact}</p>
+                            <p className="text-xs text-gray-500">{patient.emergency_phone}</p>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">

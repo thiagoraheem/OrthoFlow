@@ -30,7 +30,7 @@ export default function PatientView({ patient }: PatientViewProps) {
     return age;
   };
 
-  const age = calculateAge(patient.dateOfBirth);
+  const age = calculateAge(patient.date_of_birth);
 
   return (
     <div className="space-y-6">
@@ -41,7 +41,7 @@ export default function PatientView({ patient }: PatientViewProps) {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-foreground">
-            {patient.firstName} {patient.lastName}
+            {patient.first_name} {patient.last_name}
           </h2>
           <p className="text-muted-foreground">ID: {patient.id}</p>
         </div>
@@ -62,7 +62,7 @@ export default function PatientView({ patient }: PatientViewProps) {
               <div>
                 <p className="text-sm font-medium">Data de Nascimento</p>
                 <p className="text-sm text-muted-foreground">
-                  {formatDate(patient.dateOfBirth)}
+                  {formatDate(patient.date_of_birth)}
                   {age && ` (${age} anos)`}
                 </p>
               </div>
@@ -115,33 +115,33 @@ export default function PatientView({ patient }: PatientViewProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {patient.insurancePlan ? (
+            {patient.insurance_plan ? (
               <div className="space-y-4">
                 <div>
                   <Badge variant="outline" className="mb-2">
-                    {patient.insurancePlan.planName}
+                    {patient.insurance_plan.plan_name}
                   </Badge>
                   <p className="text-sm text-muted-foreground">
-                    {patient.insurancePlan.provider}
+                    {patient.insurance_plan.provider}
                   </p>
                 </div>
                 
-                {patient.insuranceNumber && (
+                {patient.insurance_number && (
                   <>
                     <Separator />
                     <div>
                       <p className="text-sm font-medium">Número da Carteirinha</p>
-                      <p className="text-sm text-muted-foreground">{patient.insuranceNumber}</p>
+                      <p className="text-sm text-muted-foreground">{patient.insurance_number}</p>
                     </div>
                   </>
                 )}
                 
-                {patient.insurancePlan.coverage && (
+                {patient.insurance_plan.coverage && (
                   <>
                     <Separator />
                     <div>
                       <p className="text-sm font-medium">Cobertura</p>
-                      <p className="text-sm text-muted-foreground">{patient.insurancePlan.coverage}</p>
+                      <p className="text-sm text-muted-foreground">{patient.insurance_plan.coverage}</p>
                     </div>
                   </>
                 )}
@@ -164,19 +164,19 @@ export default function PatientView({ patient }: PatientViewProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {patient.emergencyContact ? (
+            {patient.emergency_contact ? (
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium">Nome</p>
-                  <p className="text-sm text-muted-foreground">{patient.emergencyContact}</p>
+                  <p className="text-sm text-muted-foreground">{patient.emergency_contact}</p>
                 </div>
                 
-                {patient.emergencyPhone && (
+                {patient.emergency_phone && (
                   <>
                     <Separator />
                     <div>
                       <p className="text-sm font-medium">Telefone</p>
-                      <p className="text-sm text-muted-foreground">{patient.emergencyPhone}</p>
+                      <p className="text-sm text-muted-foreground">{patient.emergency_phone}</p>
                     </div>
                   </>
                 )}
